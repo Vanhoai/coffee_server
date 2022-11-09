@@ -1,5 +1,5 @@
 export const getConfig = () => {
-    const DEBUG = true;
+    const DEBUG = false;
 
     const config = {
         POSTGRES_HOST: '127.0.0.1',
