@@ -7,7 +7,7 @@ export const getConfig = () => {
         POSTGRES_USER: 'postgres',
         POSTGRES_PASSWORD: 'Tranhoai241223',
         POSTGRES_DB: 'coffee',
-        PORT: DEBUG ? 8080 : 80,
+        PORT: DEBUG ? 8080 : process.env.PORT,
         API: '/api/v1',
         COR_ORIGIN: DEBUG ? 'http://localhost:3000' : 'https://coffee-shop-frontend.vercel.app',
         ACCESS_TOKEN_SECRET: 'ACCESS_TOKEN_SECRET',
