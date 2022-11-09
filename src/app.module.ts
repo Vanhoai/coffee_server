@@ -23,6 +23,7 @@ import { HistoryEntity } from './features/histories/entities/history.entity';
 import { OrderEntity } from './features/orders/entities/order.entity';
 import { OrderModule } from './features/orders/order.module';
 import { OrderToProductEntity } from './features/orders/entities/order-product.entity';
+import { PublicRoutes } from './features/public/public.module';
 
 @Module({
     imports: [
@@ -61,6 +62,7 @@ import { OrderToProductEntity } from './features/orders/entities/order-product.e
         CloudinaryModule,
         CommentModule,
         OrderModule,
+        PublicRoutes,
     ],
     controllers: [],
     providers: [],

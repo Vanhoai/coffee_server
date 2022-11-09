@@ -104,7 +104,6 @@ export class AuthService {
         const refreshToken = await this.JWT.signRefreshToken(payload);
 
         const { password: pass, ...response } = user;
-        console.log(pass);
 
         return {
             user: response,
