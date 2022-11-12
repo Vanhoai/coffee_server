@@ -1,14 +1,12 @@
 export const getConfig = () => {
-    const DEBUG = false;
+    const DEBUG = true;
 
     const config = {
-        POSTGRES_HOST: DEBUG
-            ? '127.0.0.1'
-            : 'postgres://sweqjour:QMdhbPmLX5v26h8ULPzlIiTlY1CuUan9@tiny.db.elephantsql.com/sweqjour',
-        POSTGRES_PORT: 5432,
-        POSTGRES_USER: DEBUG ? 'postgres' : 'sweqjour',
-        POSTGRES_PASSWORD: DEBUG ? 'Tranhoai241223' : 'QMdhbPmLX5v26h8ULPzlIiTlY1CuUan9',
-        POSTGRES_DB: 'sweqjour',
+        POSTGRES_HOST: DEBUG ? '127.0.0.1' : 'database',
+        POSTGRES_PORT: DEBUG ? 5432 : 5434,
+        POSTGRES_USER: 'postgres',
+        POSTGRES_PASSWORD: DEBUG ? 'Tranhoai241223' : 'postgres',
+        POSTGRES_DB: 'coffee',
         PORT: DEBUG ? 8080 : process.env.PORT,
         API: '/api/v1',
         COR_ORIGIN: DEBUG ? 'http://localhost:3000' : 'https://coffee-shop-frontend.vercel.app',

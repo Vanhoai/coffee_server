@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
         this.tokenService
             .verifyAccessToken(token)
             .then((payload: JWTPayload) => {
-                req.user = payload;
+                req.body.user = payload;
                 next();
             })
             .catch((error: any) => {

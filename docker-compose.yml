@@ -1,0 +1,37 @@
+version: '1.0'
+services:
+  database:
+    image: postgres:15.0
+    restart: always
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: coffee
+    networks:
+      - nestjs
+  app:
+    image: app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    nestworks:
+      - nestjs
+  dbadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - nestjs
+
+networks:
+  nestjs:
