@@ -82,12 +82,10 @@ export class AuthService {
         return user;
     }
 
-    async login({ username, email, password }: LoginUserDto): Promise<any> {
-        const searchOption = username ? { username: username } : { email: email };
-
+    async login({ email, password }: LoginUserDto): Promise<any> {
         const user = await this.findByOption({
-            key: Object.keys(searchOption)[0],
-            value: Object.values(searchOption)[0],
+            key: 'email',
+            value: email,
         });
         if (!user) return null;
 

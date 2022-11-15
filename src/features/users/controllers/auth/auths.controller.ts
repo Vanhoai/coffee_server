@@ -36,8 +36,8 @@ export class AuthController {
     @Post('login')
     async login(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
-            const user = await this.authService.login({ username, email, password });
+            const { email, password } = req.body;
+            const user = await this.authService.login({ email, password });
             if (!user) return res.status(HttpStatus.UNAUTHORIZED).json(HttpResponse.result('Unauthorized', 401, {}));
             return res.status(HttpStatus.OK).json(HttpResponse.result('User Login Successfully', 200, user));
         } catch (error: any) {
