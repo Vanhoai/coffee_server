@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { getConfig } from 'src/config';
+import { JWTPayload } from '../interfaces/JWTPayload';
 
 @Injectable()
 export class TokenService {
     constructor(private JWT: JwtService) {}
 
-    signAccessToken = (payload: any): Promise<string> => {
+    signAccessToken = (payload: JWTPayload): Promise<string> => {
         return new Promise((resolve, reject) => {
             const secret = process.env.ACCESS_TOKEN_SECRET || getConfig().ACCESS_TOKEN_SECRET;
             const options = {
@@ -22,7 +23,7 @@ export class TokenService {
         });
     };
 
-    signRefreshToken = (payload: any): Promise<string> => {
+    signRefreshToken = (payload: JWTPayload): Promise<string> => {
         return new Promise((resolve, reject) => {
             const secret = process.env.REFRESH_TOKEN_SECRET || getConfig().REFRESH_TOKEN_SECRET;
             const options = {

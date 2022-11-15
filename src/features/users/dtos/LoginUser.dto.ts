@@ -1,9 +1,10 @@
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginUserDto {
     @IsString()
     @Expose()
+    @MinLength(10)
     username: string;
 
     @IsString()

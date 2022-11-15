@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CloudinaryModule } from './features/cloudinary/cloudinary.module';
@@ -24,6 +24,7 @@ import { OrderEntity } from './features/orders/entities/order.entity';
 import { OrderModule } from './features/orders/order.module';
 import { OrderToProductEntity } from './features/orders/entities/order-product.entity';
 import { PublicRoutes } from './features/public/public.module';
+import { AppLoggerMiddleware } from './core/middlewares/logger.middleware';
 
 @Module({
     imports: [
@@ -68,4 +69,8 @@ import { PublicRoutes } from './features/public/public.module';
     providers: [],
     exports: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(AppLoggerMiddleware).forRoutes('*');
+    }
+}

@@ -1,3 +1,4 @@
+import { IsEmail, Length, MinLength } from 'class-validator';
 import { getConfig } from 'src/config';
 import { GiftEntity } from 'src/features/gifts/entities/gift.entity';
 import { HistoryEntity } from 'src/features/histories/entities/history.entity';
@@ -12,12 +13,15 @@ export class UserEntity {
     id: number;
 
     @Column()
+    @MinLength(10)
     username?: string;
 
     @Column()
+    @IsEmail()
     email?: string;
 
     @Column()
+    @MinLength(4)
     password?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)

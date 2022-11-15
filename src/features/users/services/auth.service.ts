@@ -57,6 +57,7 @@ export class AuthService {
             key: 'email',
             value: email,
         });
+
         if (isConflict) return null;
 
         const salt = await bcrypt.genSalt(Number(10));
@@ -106,9 +107,33 @@ export class AuthService {
         const { password: pass, ...response } = user;
 
         return {
-            user: response,
+            ...response,
+            image: null,
+            history: null,
+            favorite: null,
             accessToken,
             refreshToken,
         };
+    }
+
+    async refreshToken({ refreshToken }: { refreshToken: string }): Promise<any> {
+        const payload = await this.JWT.verifyRefreshToken(refreshToken);
+        if (!payload) return null;
+        const { id, email, role } = payload;
+
+        const newPayload: JWTPayload = {
+            id,
+            email,
+            role,
+        };
+
+        const accessToken = await this.JWT.signAccessToken(newPayload);
+        const newRefreshToken = await this.JWT.signRefreshToken(newPayload);
+
+        const response = {
+            accessToken,
+            refreshToken: newRefreshToken,
+        };
+        return response;
     }
 }
