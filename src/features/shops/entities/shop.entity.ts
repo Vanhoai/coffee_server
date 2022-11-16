@@ -16,6 +16,12 @@ export class ShopEntity {
     @OneToOne(() => ImageEntity, (image) => image.id)
     image?: ImageEntity;
 
+    @Column()
+    longitude?: number;
+
+    @Column()
+    latitude?: number;
+
     @ManyToMany(() => ProductEntity)
     @JoinTable()
     products?: ProductEntity[];

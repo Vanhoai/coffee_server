@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ShopEntity } from '../shops/entities/shop.entity';
 
 @Entity({ name: 'images' })
 export class ImageEntity {
@@ -7,4 +8,7 @@ export class ImageEntity {
 
     @Column()
     url?: string;
+
+    @Column()
+    publicId?: string;
 }

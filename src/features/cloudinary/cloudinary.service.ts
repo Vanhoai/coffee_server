@@ -13,4 +13,8 @@ export class CloudinaryService {
             toStream(file.buffer).pipe(upload);
         });
     }
+
+    async deleteFileImage(publicId: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
+        return await v2.uploader.destroy(publicId);
+    }
 }
