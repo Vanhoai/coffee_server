@@ -40,8 +40,7 @@ export class ShopService {
         shop.longitude = longitude;
         shop.latitude = latitude;
         shop.products = [];
-        // error here
-        // shop.image = image;
+        shop.image = image;
         return await this.shopRepository.save(shop);
     }
 

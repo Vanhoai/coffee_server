@@ -1,6 +1,6 @@
 import { ImageEntity } from 'src/features/images/image.entity';
 import { ProductEntity } from 'src/features/products/entities/product.entity';
-import { Column, Entity, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'shops' })
 export class ShopEntity {
@@ -14,6 +14,7 @@ export class ShopEntity {
     description?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
+    @JoinColumn()
     image?: ImageEntity;
 
     @Column()
