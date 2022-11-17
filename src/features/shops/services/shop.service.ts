@@ -1,6 +1,5 @@
-import { BadRequestException, ConsoleLogger, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CloudinaryService } from 'src/features/cloudinary/cloudinary.service';
 import { ImageService } from 'src/features/images/image.service';
 import { Repository } from 'typeorm';
 import { CreateShopDto } from '../dtos/CreateShop.dto';
@@ -46,12 +45,10 @@ export class ShopService {
 
     async updateShop(id: number, shopUpdate: UpdateShopDto): Promise<ShopEntity> {
         const shop = await this.getShopById(id);
-        if (!shop) return null;
-        const { file, ...rest } = shopUpdate;
-        if (file) {
-            const image = await this.imageService.createImage(file);
-            shop.image = image;
-        }
-        return await this.shopRepository.save(shop);
+        console.log({
+            shop,
+            ...shopUpdate,
+        });
+        return null;
     }
 }

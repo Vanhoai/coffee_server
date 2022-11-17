@@ -42,7 +42,9 @@ export class ImageService {
         if (!image) {
             throw new BadRequestException('Image not found');
         }
+        const { publicId } = image;
         await this.imageRepository.delete(id);
+        await this.cloudinary.deleteFileImage(publicId);
         return image;
     }
 
@@ -52,7 +54,16 @@ export class ImageService {
         return images;
     }
 
-    async deleteImageFromCloudinary(publicId: string) {
-        return await this.cloudinary.deleteFileImage(publicId);
+    async changeImage(id: number, file: Express.Multer.File): Promise<ImageEntity> {
+        const image = await this.findOne(id);
+        if (!image) {
+            throw new BadRequestException('Image not found');
+        }
+        const { publicId } = image;
+        await this.cloudinary.deleteFileImage(publicId);
+        const { url, public_id } = await this.uploadImageToCloudinary(file);
+        image.url = url;
+        image.publicId = public_id;
+        return await this.imageRepository.save(image);
     }
 }
