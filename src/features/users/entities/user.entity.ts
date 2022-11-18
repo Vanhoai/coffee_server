@@ -5,7 +5,16 @@ import { HistoryEntity } from 'src/features/histories/entities/history.entity';
 import { ImageEntity } from 'src/features/images/image.entity';
 import { OrderEntity } from 'src/features/orders/entities/order.entity';
 import { ShopEntity } from 'src/features/shops/entities/shop.entity';
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -25,6 +34,7 @@ export class UserEntity {
     password?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
+    @JoinColumn()
     image?: ImageEntity;
 
     @OneToMany(() => HistoryEntity, (history) => history.user)

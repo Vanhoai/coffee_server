@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpStatus,
     Next,
@@ -11,12 +12,11 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import { ShopEntity } from '../entities/shop.entity';
-import { ShopService } from '../services/shop.service';
-import { Request, Response, NextFunction } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { NextFunction, Request, Response } from 'express';
 import { HttpResponse } from 'src/utils/HttpResponse';
 import { CreateShopParams } from '../interfaces/CreateShopParams';
+import { ShopService } from '../services/shop.service';
 
 @Controller('shops')
 export class ShopController {
@@ -32,7 +32,7 @@ export class ShopController {
         }
     }
 
-    @Post('create')
+    @Post()
     @UseInterceptors(FileInterceptor('image'))
     async createShop(
         @Req() req: Request,
@@ -51,7 +51,7 @@ export class ShopController {
         }
     }
 
-    @Put('update/:id')
+    @Put(':id')
     @UseInterceptors(FileInterceptor('image'))
     async updateShop(
         @Req() req: Request,
@@ -70,6 +70,40 @@ export class ShopController {
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Shop updated successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Delete(':id')
+    async deleteSoftShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.shopService.deleteSoftShop(parseInt(id));
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Shop not found', HttpStatus.NOT_FOUND, {}));
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Shop deleted successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Delete('delete/:id')
+    async deleteShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.shopService.removeShop(parseInt(id));
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Shop not found', HttpStatus.NOT_FOUND, {}));
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Shop deleted successfully', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

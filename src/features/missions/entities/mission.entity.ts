@@ -11,4 +11,13 @@ export class MissionEntity {
 
     @ManyToOne(() => TypeEntity, (type) => type.missions)
     type: TypeEntity;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt?: Date;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    updatedAt?: Date;
+
+    @Column({ default: false })
+    deletedAt?: boolean;
 }

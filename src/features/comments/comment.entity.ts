@@ -25,6 +25,6 @@ export class CommentEntity {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt?: Date;
 
-    @Column()
+    @Column({ default: false })
     deletedAt?: boolean;
 }

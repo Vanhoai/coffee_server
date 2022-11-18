@@ -14,10 +14,25 @@ export class ShopService {
         private readonly imageService: ImageService,
     ) {}
 
-    async getAllShop(): Promise<ShopEntity[]> {
-        return await this.shopRepository.find({
+    async getAllShop(): Promise<any> {
+        let shops: ShopEntity[] = await this.shopRepository.find({
             relations: ['image', 'products'],
         });
+        shops = shops.filter((shop) => !shop.deletedAt);
+        const result = shops.map((shop) => {
+            const {
+                id,
+                location,
+                description,
+                longitude,
+                latitude,
+                image: { url },
+                products,
+            } = shop;
+            return { id, location, description, longitude, latitude, image: url, products };
+        });
+
+        return result;
     }
 
     async getShopById(id: number): Promise<ShopEntity> {
@@ -40,15 +55,42 @@ export class ShopService {
         shop.latitude = latitude;
         shop.products = [];
         shop.image = image;
+        shop.createdAt = new Date();
+        shop.updatedAt = new Date();
+        shop.deletedAt = false;
         return await this.shopRepository.save(shop);
     }
 
     async updateShop(id: number, shopUpdate: UpdateShopDto): Promise<ShopEntity> {
         const shop = await this.getShopById(id);
-        console.log({
-            shop,
-            ...shopUpdate,
-        });
-        return null;
+        if (!shop) return null;
+        const {
+            image: { id: imageId },
+        } = shop;
+        const { file, ...params } = shopUpdate;
+        const image = await this.imageService.changeImage(imageId, file);
+        const updatedShop = await this.shopRepository.save({ ...shop, ...params, image, updatedAt: new Date() });
+        return updatedShop;
+    }
+
+    async deleteSoftShop(id: number): Promise<ShopEntity> {
+        const shop = await this.getShopById(id);
+        if (!shop) return null;
+        const {
+            image: { id: imageId },
+        } = shop;
+        shop.deletedAt = true;
+        await this.imageService.deleteSoftImage(imageId);
+        return await this.shopRepository.save(shop);
+    }
+
+    async removeShop(id: number): Promise<ShopEntity> {
+        const shop = await this.getShopById(id);
+        if (!shop) return null;
+        const {
+            image: { id: imageId },
+        } = shop;
+        await this.imageService.deleteImage(imageId);
+        return await this.shopRepository.remove(shop);
     }
 }

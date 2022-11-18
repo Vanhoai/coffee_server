@@ -1,22 +1,18 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class UpdateShopDto {
+export class CreateProductDto {
     @IsString()
     @IsNotEmpty()
-    location?: string;
-
-    @IsString()
-    @IsNotEmpty()
-    description?: string;
+    name: string;
 
     @IsNumber()
     @IsNotEmpty()
-    longitude?: number;
+    price: number;
 
     @IsNumber()
     @IsNotEmpty()
-    latitude?: number;
+    quantity: number;
 
     @IsNotEmpty()
-    file?: Express.Multer.File;
+    image: Express.Multer.File;
 }

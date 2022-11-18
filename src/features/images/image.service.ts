@@ -19,9 +19,15 @@ export class ImageService {
 
     async createImage(file: Express.Multer.File): Promise<ImageEntity> {
         const image = new ImageEntity();
-        const { url, public_id } = await this.uploadImageToCloudinary(file);
+        const response = await this.uploadImageToCloudinary(file);
+        const { url, public_id, width, height, format, signature, secure_url } = response;
         image.url = url;
         image.publicId = public_id;
+        image.width = width;
+        image.height = height;
+        image.format = format;
+        image.signature = signature;
+        image.secureUrl = secure_url;
         return await this.imageRepository.save(image);
     }
 
@@ -35,6 +41,15 @@ export class ImageService {
                 id,
             },
         });
+    }
+
+    async deleteSoftImage(id: number): Promise<ImageEntity> {
+        const image = await this.findOne(id);
+        if (!image) {
+            throw new BadRequestException('Image not found');
+        }
+        image.deletedAt = true;
+        return await this.imageRepository.save(image);
     }
 
     async deleteImage(id: number): Promise<ImageEntity> {

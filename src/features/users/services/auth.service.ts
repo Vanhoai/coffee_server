@@ -8,6 +8,7 @@ import { UserEntity } from '../entities/user.entity';
 import { getConfig } from 'src/config';
 import { LoginUserDto } from '../dtos/LoginUser.dto';
 import { JWTPayload } from 'src/core/interfaces/JWTPayload';
+import { url } from 'inspector';
 
 @Injectable()
 export class AuthService {
@@ -83,9 +84,9 @@ export class AuthService {
     }
 
     async login({ email, password }: LoginUserDto): Promise<any> {
-        const user = await this.findByOption({
-            key: 'email',
-            value: email,
+        const user = await this.userRepository.findOne({
+            where: { email },
+            relations: ['image'],
         });
         if (!user) return null;
 
@@ -102,13 +103,13 @@ export class AuthService {
         const accessToken = await this.JWT.signAccessToken(payload);
         const refreshToken = await this.JWT.signRefreshToken(payload);
 
-        const { password: pass, ...response } = user;
+        const { password: pass, createdAt, updatedAt, deletedAt, image, ...response } = user;
 
         return {
             ...response,
-            image: null,
-            history: null,
-            favorite: null,
+            history: user.id,
+            favorite: user.id,
+            image: image ? image.url : null,
             accessToken,
             refreshToken,
         };
