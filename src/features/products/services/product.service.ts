@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ImageService } from 'src/features/images/image.service';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from '../dtos/CreateProduct.dto';
+import { UpdateProductDto } from '../dtos/UpdateProduct.dto';
 import { ProductEntity } from '../entities/product.entity';
 
 @Injectable()
@@ -13,9 +14,42 @@ export class ProductService {
         private readonly imageService: ImageService,
     ) {}
 
-    async createProduct({ name, price, quantity, image: file }: CreateProductDto): Promise<ProductEntity> {
+    async getAllProducts(): Promise<any> {
+        let shops: ProductEntity[] = await this.productRepository.find({
+            relations: ['image', 'comments', 'orders'],
+        });
+        shops = shops.filter((product) => !product.deletedAt);
+
+        const response = shops.map((product) => {
+            return {
+                id: product.id,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                explored: product.explored,
+                quantity: product.quantity,
+                comments: product.id,
+                orders: product.id,
+                image: product.image.url,
+            };
+        });
+
+        return response;
+    }
+
+    async findProductById(id: number): Promise<ProductEntity> {
+        const product: ProductEntity = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['image', 'comments', 'orders'],
+        });
+
+        return product;
+    }
+
+    async createProduct({ name, price, description, quantity, image: file }: CreateProductDto): Promise<ProductEntity> {
         const product = new ProductEntity();
         product.name = name;
+        product.description = description;
         product.price = price;
         product.quantity = quantity;
         product.explored = 0;
@@ -27,6 +61,49 @@ export class ProductService {
 
         const image = await this.imageService.createImage(file);
         product.image = image;
+
+        return await this.productRepository.save(product);
+    }
+
+    async updateProduct(
+        id: number,
+        { name, price, description, quantity, image }: UpdateProductDto,
+    ): Promise<ProductEntity> {
+        const product = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['image'],
+        });
+
+        const { image: oldImage } = product;
+        if (oldImage) {
+            await this.imageService.deleteImage(oldImage.id);
+        }
+
+        const newImage = await this.imageService.createImage(image);
+
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.quantity = quantity;
+        product.image = newImage;
+        product.updatedAt = new Date();
+
+        return await this.productRepository.save(product);
+    }
+
+    async deleteProduct(id: number): Promise<any> {
+        const product = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['image'],
+        });
+
+        const { image } = product;
+        if (image) {
+            await this.imageService.deleteImage(image.id);
+        }
+
+        product.deletedAt = true;
+        product.updatedAt = new Date();
 
         return await this.productRepository.save(product);
     }

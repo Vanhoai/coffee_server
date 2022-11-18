@@ -20,23 +20,22 @@ export class ShopService {
         });
         shops = shops.filter((shop) => !shop.deletedAt);
         const result = shops.map((shop) => {
-            const {
-                id,
-                location,
-                description,
-                longitude,
-                latitude,
-                image: { url },
-                products,
-            } = shop;
-            return { id, location, description, longitude, latitude, image: url, products };
+            return {
+                id: shop.id,
+                location: shop.location,
+                description: shop.description,
+                longitude: shop.longitude,
+                latitude: shop.latitude,
+                image: shop.image.url,
+                products: shop.id,
+            };
         });
 
         return result;
     }
 
     async getShopById(id: number): Promise<ShopEntity> {
-        const shop = await this.shopRepository.findOne({
+        const shop: ShopEntity = await this.shopRepository.findOne({
             where: { id },
             relations: ['image', 'products'],
         });

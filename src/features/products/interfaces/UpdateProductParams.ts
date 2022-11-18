@@ -1,4 +1,4 @@
-export class CreateProductParams {
+export class UpdateProductParams {
     name: string;
     description: string;
     price: number;

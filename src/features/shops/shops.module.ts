@@ -6,11 +6,17 @@ import { ImageService } from '../images/image.service';
 import { ShopController } from './controllers/shop.controller';
 import { ShopEntity } from './entities/shop.entity';
 import { ShopService } from './services/shop.service';
+import { ShopProductEntity } from './entities/shop-product.entity';
+import { ShopProductController } from './controllers/shop-product.controller';
+import { ShopProductService } from './services/shop-product.service';
+import { ProductService } from '../products/services/product.service';
+import { ProductController } from '../products/controllers/product.controller';
+import { ProductEntity } from '../products/entities/product.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ShopEntity, ImageEntity])],
-    controllers: [ShopController],
-    providers: [ShopService, ImageService, CloudinaryService],
+    imports: [TypeOrmModule.forFeature([ShopEntity, ImageEntity, ShopProductEntity, ProductEntity])],
+    controllers: [ShopController, ShopProductController, ProductController],
+    providers: [ShopService, ImageService, CloudinaryService, ShopProductService, ProductService],
     exports: [],
 })
 export class ShopModule {}

@@ -1,6 +1,6 @@
 import { ImageEntity } from 'src/features/images/image.entity';
-import { ProductEntity } from 'src/features/products/entities/product.entity';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ShopProductEntity } from './shop-product.entity';
 
 @Entity({ name: 'shops' })
 export class ShopEntity {
@@ -23,9 +23,9 @@ export class ShopEntity {
     @Column()
     latitude?: number;
 
-    @ManyToMany(() => ProductEntity)
-    @JoinTable()
-    products?: ProductEntity[];
+    @OneToMany(() => ShopProductEntity, (shopProduct) => shopProduct.shop)
+    @JoinColumn()
+    products?: ShopProductEntity[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt?: Date;
