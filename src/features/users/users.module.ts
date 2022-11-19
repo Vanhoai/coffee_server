@@ -9,12 +9,13 @@ import { ImageEntity } from '../images/image.entity';
 import { ImageService } from '../images/image.service';
 import { AuthController } from './controllers/auth/auths.controller';
 import { UserController } from './controllers/user/users.controller';
+import { BalanceEntity } from './entities/balance.entity';
 import { UserEntity } from './entities/user.entity';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/users.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([UserEntity, ImageEntity])],
+    imports: [TypeOrmModule.forFeature([UserEntity, ImageEntity, BalanceEntity])],
     controllers: [AuthController, UserController],
     providers: [AuthService, UserService, JwtService, TokenService, ImageService, CloudinaryService],
     exports: [],

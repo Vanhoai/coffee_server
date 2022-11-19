@@ -4,6 +4,7 @@ import { getConfig } from 'src/config';
 import { ImageService } from 'src/features/images/image.service';
 import { Repository } from 'typeorm';
 import { UpdateImageDto } from '../dtos/UpdateImage.dto';
+import { BalanceEntity } from '../entities/balance.entity';
 import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
@@ -11,6 +12,8 @@ export class UserService {
     constructor(
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(BalanceEntity)
+        private readonly balanceRepository: Repository<BalanceEntity>,
         private readonly imageService: ImageService,
     ) {}
 

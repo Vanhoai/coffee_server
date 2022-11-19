@@ -15,6 +15,7 @@ import {
     OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BalanceEntity } from './balance.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -46,8 +47,9 @@ export class UserEntity {
     @Column({ default: getConfig().TYPE_ACCOUNT.EMAIL })
     typeAccount?: string;
 
-    @Column({ default: 0 })
-    balance?: number;
+    @OneToOne(() => BalanceEntity, (balance) => balance.id)
+    @JoinColumn()
+    balance?: BalanceEntity;
 
     @Column({ default: 0 })
     exp?: number;

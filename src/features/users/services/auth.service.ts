@@ -8,13 +8,15 @@ import { UserEntity } from '../entities/user.entity';
 import { getConfig } from 'src/config';
 import { LoginUserDto } from '../dtos/LoginUser.dto';
 import { JWTPayload } from 'src/core/interfaces/JWTPayload';
-import { url } from 'inspector';
+import { BalanceEntity } from '../entities/balance.entity';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
+        @InjectRepository(BalanceEntity)
+        private balanceRepository: Repository<BalanceEntity>,
         private JWT: TokenService,
     ) {}
 
@@ -33,6 +35,8 @@ export class AuthService {
         const salt = await bcrypt.genSalt(Number(10));
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const balance = await this.createBalance();
+
         const admin = this.userRepository.create({
             username,
             email,
@@ -43,6 +47,7 @@ export class AuthService {
             favoriteShops: [],
             gifts: [],
             orders: [],
+            balance,
             createdAt: new Date(),
             updatedAt: new Date(),
             deletedAt: false,
@@ -64,6 +69,8 @@ export class AuthService {
         const salt = await bcrypt.genSalt(Number(10));
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const balance = await this.createBalance();
+
         const user = this.userRepository.create({
             username,
             email,
@@ -73,6 +80,7 @@ export class AuthService {
             favoriteShops: [],
             gifts: [],
             orders: [],
+            balance,
             createdAt: new Date(),
             updatedAt: new Date(),
             deletedAt: false,
@@ -86,7 +94,7 @@ export class AuthService {
     async login({ email, password }: LoginUserDto): Promise<any> {
         const user = await this.userRepository.findOne({
             where: { email },
-            relations: ['image'],
+            relations: ['image', 'balance'],
         });
         if (!user) return null;
 
@@ -134,5 +142,22 @@ export class AuthService {
             refreshToken: newRefreshToken,
         };
         return response;
+    }
+
+    randomCodeBalance(): string {
+        const src = '0123456789';
+        let code = '';
+        for (let i = 0; i < 12; i++) {
+            code += src[Math.floor(Math.random() * src.length)];
+        }
+        return code;
+    }
+
+    async createBalance(): Promise<BalanceEntity> {
+        const balance = new BalanceEntity();
+        balance.code = this.randomCodeBalance();
+        balance.amount = 0;
+        await this.balanceRepository.save(balance);
+        return balance;
     }
 }
