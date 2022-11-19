@@ -35,7 +35,6 @@ export class ProductEntity {
     orders?: OrderToProductEntity[];
 
     @OneToMany(() => ShopProductEntity, (shopProduct) => shopProduct.product)
-    @JoinColumn()
     shops?: ShopProductEntity[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

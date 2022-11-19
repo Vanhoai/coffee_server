@@ -27,7 +27,7 @@ export class ShopService {
                 longitude: shop.longitude,
                 latitude: shop.latitude,
                 image: shop.image.url,
-                products: shop.id,
+                products: shop.products,
             };
         });
 
@@ -37,7 +37,7 @@ export class ShopService {
     async getShopById(id: number): Promise<ShopEntity> {
         const shop: ShopEntity = await this.shopRepository.findOne({
             where: { id },
-            relations: ['image', 'products'],
+            relations: ['image', 'products', 'products.product'],
         });
         if (!shop) {
             throw new BadRequestException('Shop not found');

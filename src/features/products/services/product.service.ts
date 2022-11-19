@@ -15,32 +15,17 @@ export class ProductService {
     ) {}
 
     async getAllProducts(): Promise<any> {
-        let shops: ProductEntity[] = await this.productRepository.find({
-            relations: ['image', 'comments', 'orders'],
-        });
-        shops = shops.filter((product) => !product.deletedAt);
-
-        const response = shops.map((product) => {
-            return {
-                id: product.id,
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                explored: product.explored,
-                quantity: product.quantity,
-                comments: product.id,
-                orders: product.id,
-                image: product.image.url,
-            };
+        const shops: ProductEntity[] = await this.productRepository.find({
+            relations: ['image', 'comments', 'orders', 'shops'],
         });
 
-        return response;
+        return shops.filter((product) => !product.deletedAt);
     }
 
     async findProductById(id: number): Promise<ProductEntity> {
         const product: ProductEntity = await this.productRepository.findOne({
             where: { id, deletedAt: false },
-            relations: ['image', 'comments', 'orders'],
+            relations: ['image', 'comments', 'orders', 'shops', 'shops.shop'],
         });
 
         return product;

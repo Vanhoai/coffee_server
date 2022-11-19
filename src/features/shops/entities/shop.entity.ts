@@ -24,7 +24,6 @@ export class ShopEntity {
     latitude?: number;
 
     @OneToMany(() => ShopProductEntity, (shopProduct) => shopProduct.shop)
-    @JoinColumn()
     products?: ShopProductEntity[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

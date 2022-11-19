@@ -32,6 +32,23 @@ export class ShopController {
         }
     }
 
+    @Get(':id')
+    async getShopById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.shopService.getShopById(parseInt(id));
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Shop not found', HttpStatus.NOT_FOUND, {}));
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Shop found successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Post()
     @UseInterceptors(FileInterceptor('image'))
     async createShop(

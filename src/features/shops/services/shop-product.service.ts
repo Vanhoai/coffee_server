@@ -11,8 +11,12 @@ import { ShopService } from './shop.service';
 @Injectable()
 export class ShopProductService {
     constructor(
-        @InjectRepository(ShopEntity)
+        @InjectRepository(ShopProductEntity)
         private readonly shopProductRepository: Repository<ShopProductEntity>,
+        @InjectRepository(ShopEntity)
+        private readonly shopRepository: Repository<ShopEntity>,
+        @InjectRepository(ProductEntity)
+        private readonly productRepository: Repository<ProductEntity>,
         private readonly shopService: ShopService,
         private readonly productService: ProductService,
     ) {}
@@ -33,15 +37,35 @@ export class ShopProductService {
 
         productEntity.quantity -= quantity;
 
-        const shopProduct = await this.shopProductRepository.save({
-            quantity,
-            shops: shopEntity,
-            products: productEntity,
-        });
+        const shopProduct = new ShopProductEntity();
+        shopProduct.shop = shopEntity;
+        shopProduct.product = productEntity;
+        shopProduct.quantity = quantity;
+        shopProduct.createdAt = new Date();
+        shopProduct.updatedAt = new Date();
+        shopProduct.deletedAt = false;
+
+        await this.shopProductRepository.save(shopProduct);
 
         shopEntity.products.push(shopProduct);
         productEntity.shops.push(shopProduct);
 
+        await this.shopRepository.save(shopEntity);
+        await this.productRepository.save(productEntity);
+
         return shopProduct;
+    }
+
+    async getAllShopProduct(): Promise<any> {
+        const [shopProducts, count] = await Promise.all([
+            this.shopProductRepository.find({
+                relations: ['shop', 'product'],
+            }),
+            this.shopProductRepository.count({}),
+        ]);
+        return {
+            count,
+            shopProduct: shopProducts.filter((shopProduct) => !shopProduct.deletedAt),
+        };
     }
 }

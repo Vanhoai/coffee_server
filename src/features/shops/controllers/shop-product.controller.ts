@@ -1,5 +1,7 @@
-import { Controller, Get, Next, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { AddProductToShopDto } from 'src/features/products/dtos/AddProductToShop.dto';
+import { HttpResponse } from 'src/utils/HttpResponse';
 import { ShopProductService } from '../services/shop-product.service';
 
 @Controller('shop-product')
@@ -11,18 +13,34 @@ export class ShopProductController {
         try {
             const { id } = req.params;
             const response = await this.shopProductService.getAllProductFromShop(parseInt(id));
-            return res.status(200).json(response);
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Success', 200, response));
         } catch (error: any) {
             next(error);
         }
     }
 
     @Post()
-    async addProductToShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+    async addProductToShop(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Next() next: NextFunction,
+        @Body() body: AddProductToShopDto,
+    ): Promise<any> {
         try {
-            const { shop, product, quantity } = req.body;
-            const response = await this.shopProductService.addProductToShop({ shop, product, quantity });
-            return res.status(200).json(response);
+            const response = await this.shopProductService.addProductToShop({ ...body });
+            if (!response)
+                return res.status(HttpStatus.BAD_REQUEST).json(HttpResponse.result('Bad Request', 400, null));
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Add Product To Shop Success', 200, {}));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Get()
+    async getAllShopProduct(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const response = await this.shopProductService.getAllShopProduct();
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Success', 200, response));
         } catch (error: any) {
             next(error);
         }

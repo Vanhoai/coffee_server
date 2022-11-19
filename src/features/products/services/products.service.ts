@@ -14,12 +14,4 @@ export class ProductsService {
         private readonly shopService: ShopService,
         private readonly productService: ProductService,
     ) {}
-
-    async addProductToShop({ product, shop, quantity }: AddProductToShopDto): Promise<any> {
-        const productEntity = await this.productService.findProductById(product);
-        if (!productEntity) return null;
-
-        const shopEntity = await this.shopService.getShopById(shop);
-        if (!shopEntity) return null;
-    }
 }
