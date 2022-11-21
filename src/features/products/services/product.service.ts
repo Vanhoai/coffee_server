@@ -31,7 +31,7 @@ export class ProductService {
         return product;
     }
 
-    async createProduct({ name, price, description, quantity, image: file }: CreateProductDto): Promise<ProductEntity> {
+    async createProductNoImage({ name, price, description, quantity }): Promise<ProductEntity> {
         const product = new ProductEntity();
         product.name = name;
         product.description = description;
@@ -43,8 +43,43 @@ export class ProductService {
         product.createdAt = new Date();
         product.updatedAt = new Date();
         product.deletedAt = false;
+        product.image = null;
 
-        const image = await this.imageService.createImage(file);
+        return await this.productRepository.save(product);
+    }
+
+    async uploadImageForProductNoImage(id: number, file: Express.Multer.File): Promise<ProductEntity> {
+        const product = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['image'],
+        });
+
+        const { image } = product;
+        if (image) {
+            await this.imageService.deleteImage(image.id);
+        }
+
+        const newImage = await this.imageService.createImage(file, 'products');
+        product.image = newImage;
+
+        return await this.productRepository.save(product);
+    }
+
+    async createProduct({ name, price, description, quantity, image: file }: CreateProductDto): Promise<ProductEntity> {
+        const product = new ProductEntity();
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.quantity = quantity;
+        product.rating = 0;
+        product.explored = 0;
+        product.comments = [];
+        product.orders = [];
+        product.createdAt = new Date();
+        product.updatedAt = new Date();
+        product.deletedAt = false;
+
+        const image = await this.imageService.createImage(file, 'products');
         product.image = image;
 
         return await this.productRepository.save(product);
@@ -64,7 +99,7 @@ export class ProductService {
             await this.imageService.deleteImage(oldImage.id);
         }
 
-        const newImage = await this.imageService.createImage(image);
+        const newImage = await this.imageService.createImage(image, 'products');
 
         product.name = name;
         product.description = description;

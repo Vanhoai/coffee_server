@@ -46,7 +46,7 @@ export class ShopService {
     }
 
     async createShop({ location, description, longitude, latitude, file }: CreateShopDto): Promise<ShopEntity> {
-        const image = await this.imageService.createImage(file);
+        const image = await this.imageService.createImage(file, 'shops');
         const shop = new ShopEntity();
         shop.location = location;
         shop.description = description;
@@ -67,7 +67,7 @@ export class ShopService {
             image: { id: imageId },
         } = shop;
         const { file, ...params } = shopUpdate;
-        const image = await this.imageService.changeImage(imageId, file);
+        const image = await this.imageService.changeImage(imageId, file, 'shops');
         const updatedShop = await this.shopRepository.save({ ...shop, ...params, image, updatedAt: new Date() });
         return updatedShop;
     }
@@ -89,7 +89,8 @@ export class ShopService {
         const {
             image: { id: imageId },
         } = shop;
+        const shopDelete = await this.shopRepository.remove(shop);
         await this.imageService.deleteImage(imageId);
-        return await this.shopRepository.remove(shop);
+        return shopDelete;
     }
 }

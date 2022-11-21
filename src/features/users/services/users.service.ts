@@ -44,7 +44,7 @@ export class UserService {
             await this.imageService.deleteImage(image.id);
         }
 
-        const newImage = await this.imageService.createImage(file);
+        const newImage = await this.imageService.createImage(file, 'users');
         user.image = newImage;
 
         return await this.userRepository.save(user);

@@ -1,5 +1,5 @@
 export const getConfig = () => {
-    const DEBUG = false;
+    const DEBUG = true;
 
     const config = {
         LOCAL: DEBUG,

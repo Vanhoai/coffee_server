@@ -26,6 +26,9 @@ export class ProductEntity {
     explored?: number;
 
     @Column()
+    rating?: number;
+
+    @Column()
     quantity?: number;
 
     @OneToMany(() => CommentEntity, (comment) => comment.product)

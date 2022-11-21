@@ -11,15 +11,15 @@ export class ImageService {
         private readonly cloudinary: CloudinaryService,
     ) {}
 
-    async uploadImageToCloudinary(file: Express.Multer.File) {
-        return await this.cloudinary.uploadFileImage(file).catch(() => {
+    async uploadImageToCloudinary(file: Express.Multer.File, folder: string): Promise<any> {
+        return await this.cloudinary.uploadFileImage(file, folder).catch(() => {
             throw new BadRequestException('Invalid file type.');
         });
     }
 
-    async createImage(file: Express.Multer.File): Promise<ImageEntity> {
+    async createImage(file: Express.Multer.File, folder: string): Promise<ImageEntity> {
         const image = new ImageEntity();
-        const response = await this.uploadImageToCloudinary(file);
+        const response = await this.uploadImageToCloudinary(file, folder);
         const { url, public_id, width, height, format, signature, secure_url } = response;
         image.url = url;
         image.publicId = public_id;
@@ -69,14 +69,14 @@ export class ImageService {
         return images;
     }
 
-    async changeImage(id: number, file: Express.Multer.File): Promise<ImageEntity> {
+    async changeImage(id: number, file: Express.Multer.File, folder: string): Promise<ImageEntity> {
         const image = await this.findOne(id);
         if (!image) {
             throw new BadRequestException('Image not found');
         }
         const { publicId } = image;
         await this.cloudinary.deleteFileImage(publicId);
-        const { url, public_id } = await this.uploadImageToCloudinary(file);
+        const { url, public_id } = await this.uploadImageToCloudinary(file, folder);
         image.url = url;
         image.publicId = public_id;
         return await this.imageRepository.save(image);

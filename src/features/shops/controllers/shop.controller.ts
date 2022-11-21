@@ -18,7 +18,7 @@ import { HttpResponse } from 'src/utils/HttpResponse';
 import { CreateShopParams } from '../interfaces/CreateShopParams';
 import { ShopService } from '../services/shop.service';
 
-@Controller('shops')
+@Controller('shop')
 export class ShopController {
     constructor(private readonly shopService: ShopService) {}
 
