@@ -127,4 +127,21 @@ export class ProductService {
 
         return await this.productRepository.save(product);
     }
+
+    async calculateRating(id: number): Promise<any> {
+        const product = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['comments'],
+        });
+
+        const { comments } = product;
+        if (comments.length === 0) {
+            product.rating = 0;
+        } else {
+            const sum = comments.reduce((acc, comment) => acc + comment.rating, 0);
+            product.rating = sum / comments.length;
+        }
+
+        return await this.productRepository.save(product);
+    }
 }

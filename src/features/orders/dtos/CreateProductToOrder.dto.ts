@@ -1,14 +1,15 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CreateHistoryDto {
-    @IsNotEmpty()
-    @IsNumber()
-    userId: number;
-
+export class CreateProductToOrderDto {
     @IsNotEmpty()
     @IsNumber()
     orderId: number;
 
+    @IsNotEmpty()
     @IsNumber()
-    imageId: number;
+    productId: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    count: number;
 }

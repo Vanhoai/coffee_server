@@ -14,9 +14,6 @@ export class OrderToProductEntity {
     product: ProductEntity;
 
     @Column()
-    quantity: number;
-
-    @Column()
     price: number;
 
     @Column()

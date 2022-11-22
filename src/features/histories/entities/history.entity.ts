@@ -1,4 +1,5 @@
 import { ImageEntity } from 'src/features/images/image.entity';
+import { OrderEntity } from 'src/features/orders/entities/order.entity';
 import { UserEntity } from 'src/features/users/entities/user.entity';
 import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -13,8 +14,8 @@ export class HistoryEntity {
     @ManyToOne(() => UserEntity, (user) => user.histories)
     user: UserEntity;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    date: Date;
+    @OneToOne(() => OrderEntity)
+    order?: OrderEntity;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt?: Date;
