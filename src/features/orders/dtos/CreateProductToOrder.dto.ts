@@ -12,4 +12,7 @@ export class CreateProductToOrderDto {
     @IsNotEmpty()
     @IsNumber()
     count: number;
+
+    @IsNotEmpty()
+    shopId: number;
 }

@@ -20,8 +20,16 @@ export class UserService {
 
     async getAllCustomer(): Promise<UserEntity[]> {
         return await this.userRepository.find({
-            where: { role: getConfig().ROLE.CUSTOMER },
-            relations: ['histories', 'favoriteShops', 'gifts', 'orders', 'image'],
+            relations: [
+                'histories',
+                'favoriteShops',
+                'gifts',
+                'orders',
+                'image',
+                'orders.shops',
+                'orders.gifts',
+                'orders.products',
+            ],
         });
     }
 
@@ -57,21 +65,4 @@ export class UserService {
 
         return await this.userRepository.save(user);
     }
-
-    // async addHistoryToUser(userId: number, historyId: number): Promise<UserEntity> {
-    //     const user = await this.getUserById(userId);
-    //     const history = await this.historyService.getHistoryById(historyId);
-
-    //     if (!user) {
-    //         throw new Error('User not found');
-    //     }
-
-    //     if (!history) {
-    //         throw new Error('History not found');
-    //     }
-
-    //     user.histories.push(history);
-
-    //     return await this.userRepository.save(user);
-    // }
 }

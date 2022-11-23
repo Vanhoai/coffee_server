@@ -13,6 +13,7 @@ import { OrderModule } from '../orders/order.module';
 import { OrderService } from '../orders/services/order.service';
 import { ProductEntity } from '../products/entities/product.entity';
 import { ProductService } from '../products/services/product.service';
+import { ShopProductEntity } from '../shops/entities/shop-product.entity';
 import { ShopEntity } from '../shops/entities/shop.entity';
 import { ShopService } from '../shops/services/shop.service';
 import { BalanceEntity } from '../users/entities/balance.entity';
@@ -35,6 +36,7 @@ import { HistoryService } from './services/history.service';
             GiftEntity,
             TypeEntity,
             ShopEntity,
+            ShopProductEntity,
         ]),
     ],
     controllers: [HistoryController],
@@ -45,11 +47,10 @@ import { HistoryService } from './services/history.service';
         ProductService,
         ImageService,
         CloudinaryService,
-        OrderService,
         GiftService,
         TypeService,
         ShopService,
     ],
-    exports: [],
+    exports: [HistoryService],
 })
 export class HistoryModule {}

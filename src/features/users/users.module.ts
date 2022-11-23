@@ -20,11 +20,4 @@ import { UserService } from './services/users.service';
     providers: [AuthService, UserService, JwtService, TokenService, ImageService, CloudinaryService],
     exports: [],
 })
-export class UserModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        consumer.apply(AuthMiddleware, RoleMiddleware).forRoutes({
-            path: 'users',
-            method: RequestMethod.ALL,
-        });
-    }
-}
+export class UserModule {}

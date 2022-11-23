@@ -1,5 +1,4 @@
 import {
-    Body,
     Controller,
     Get,
     HttpStatus,
@@ -13,14 +12,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { NextFunction, Request, Response } from 'express';
-import { Role } from 'src/core/constants/role.enum';
-import { Roles } from 'src/core/decorators/roles.decorator';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 import { RolesGuard } from 'src/core/guards/roles.guard';
 import { UserService } from '../../services/users.service';
 
 @Controller('users')
-@UseGuards(AuthGuard, RolesGuard)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 

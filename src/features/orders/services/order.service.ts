@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftService } from 'src/features/gifts/services/gift.service';
-import { HistoryEntity } from 'src/features/histories/entities/history.entity';
 import { HistoryService } from 'src/features/histories/services/history.service';
 import { ProductService } from 'src/features/products/services/product.service';
+import { ShopProductEntity } from 'src/features/shops/entities/shop-product.entity';
 import { ShopService } from 'src/features/shops/services/shop.service';
 import { UserEntity } from 'src/features/users/entities/user.entity';
 import { UserService } from 'src/features/users/services/users.service';
@@ -23,42 +23,40 @@ export class OrderService {
         private readonly orderToProductRepository: Repository<OrderToProductEntity>,
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
+        @Inject(forwardRef(() => HistoryService))
+        private readonly historyService: HistoryService,
+        @InjectRepository(ShopProductEntity)
+        private readonly shopProductRepository: Repository<ShopProductEntity>,
         private readonly userService: UserService,
         private readonly productService: ProductService,
         private readonly giftService: GiftService,
         private readonly shopService: ShopService,
-        private readonly historyService: HistoryService,
     ) {}
 
-    async newOrder({ userId, address, gifts, shop }: NewOrderDto): Promise<OrderEntity> {
-        const userEntity = await this.userService.getUserById(userId);
+    async newOrder({ user, address, gifts, shop }: NewOrderDto): Promise<OrderEntity> {
+        const userEntity = await this.userService.getUserById(user);
         const giftEntity = await this.giftService.findGiftById(gifts);
-        const shopEntity = await this.shopService.getShopById(shop);
 
         if (!userEntity) {
             throw new Error('User not found');
         }
 
-        const order = new OrderEntity();
-        order.user = userEntity;
-        order.shops = shopEntity;
-        order.status = 0;
-        order.total = 0;
-        order.address = address;
-        order.products = [];
-        order.createdAt = new Date();
-        order.updatedAt = new Date();
-        order.deletedAt = false;
-
-        if (giftEntity) {
-            order.gifts = giftEntity;
-        }
+        const order = this.orderRepository.create({
+            user: userEntity,
+            address,
+            gifts: giftEntity || null,
+            shops: null,
+            total: 0,
+            status: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: false,
+        });
 
         userEntity.orders.push(order);
 
         await this.userRepository.save(userEntity);
-
-        return await this.orderRepository.save(order);
+        return this.orderRepository.save(order);
     }
 
     async getAllOrder(): Promise<OrderEntity[]> {
@@ -108,19 +106,20 @@ export class OrderService {
         return await this.orderRepository.remove(order);
     }
 
-    async addProductToOrder({ orderId, productId, count }: CreateProductToOrderDto): Promise<OrderEntity> {
+    async addProductToOrder({ orderId, productId, count, shopId }: CreateProductToOrderDto): Promise<void> {
         const order = await this.getOrderById(orderId);
         const product = await this.productService.findProductById(productId);
+        const shop = await this.shopService.getShopById(shopId);
 
         if (!order || !product) {
-            throw new Error('Order or product not found');
+            throw new Error('Order or Product not found');
         }
 
         const orderToProduct = new OrderToProductEntity();
         orderToProduct.order = order;
         orderToProduct.product = product;
-        orderToProduct.price = product.price;
         orderToProduct.count = count;
+        orderToProduct.price = product.price;
         orderToProduct.total = product.price * count;
         orderToProduct.createdAt = new Date();
         orderToProduct.updatedAt = new Date();
@@ -129,30 +128,54 @@ export class OrderService {
         order.products.push(orderToProduct);
         order.total += orderToProduct.total;
 
-        product.orders.push(orderToProduct);
-        product.quantity -= count;
+        const shopProduct = await this.shopProductRepository.findOne({
+            where: { shop, product },
+        });
+
+        if (shopProduct) {
+            shopProduct.quantity -= count;
+            await this.shopProductRepository.save(shopProduct);
+        }
+
+        await this.orderRepository.save(order);
 
         await this.orderToProductRepository.save(orderToProduct);
-
-        return await this.orderRepository.save(order);
+        await this.shopProductRepository.save(shopProduct);
+        await this.orderRepository.save(order);
     }
 
-    async createOrder({ user, address, voucher, products, shop }: CreateOrderDto): Promise<OrderEntity> {
-        const order = await this.newOrder({ userId: user, address, gifts: voucher, shop });
-        setTimeout(async () => {
-            for (const product of products) {
-                await this.addProductToOrder({ orderId: order.id, productId: product.id, count: product.quantity });
-            }
-        }, 0);
+    async createOrder({ user, address, gifts, products, shop }: CreateOrderDto): Promise<any> {
+        const order = await this.newOrder({ user, address, gifts, shop });
 
         const orderResponse = await this.getOrderById(order.id);
-        // save to history of user
-        // await this.historyService.createHistory({
-        //     imageId: orderResponse.shops.image.id,
-        //     userId: orderResponse.user.id,
+
+        for (let i = 0; i < products.length; i++) {
+            const productEntity = await this.productService.findProductById(products[i].id);
+            const orderProduct = new OrderToProductEntity();
+            orderProduct.order = orderResponse;
+            orderProduct.product = productEntity;
+            orderProduct.count = products[i].quantity;
+            orderProduct.price = productEntity.price;
+            orderProduct.total = productEntity.price * products[i].quantity;
+            orderProduct.createdAt = new Date();
+            orderProduct.updatedAt = new Date();
+            orderProduct.deletedAt = false;
+
+            orderResponse.products.push(orderProduct);
+            orderResponse.total += orderProduct.total;
+
+            await this.orderToProductRepository.save(orderProduct);
+            await this.orderRepository.save(orderResponse);
+
+            // update quantity of product in shop
+        }
+
+        // const history = this.historyService.createHistory({
+        //     imageId: null,
         //     orderId: orderResponse.id,
+        //     userId: orderResponse.user.id,
         // });
 
-        return orderResponse;
+        return {};
     }
 }

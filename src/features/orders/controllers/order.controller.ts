@@ -37,8 +37,8 @@ export class OrderController {
     @Post()
     async createOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { user, address, shop, voucher, products } = req.body;
-            const order = await this.orderService.createOrder({ user, address, voucher, products, shop });
+            const { user, address, shop, gifts, products } = req.body;
+            const order = await this.orderService.createOrder({ user, address, gifts, products, shop });
             if (!order) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)

@@ -12,7 +12,7 @@ export class CreateOrderDto {
 
     @IsNotEmpty()
     @IsNumber()
-    voucher?: number;
+    gifts?: number;
 
     @IsNotEmpty()
     @IsNumber()

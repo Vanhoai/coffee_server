@@ -1,6 +1,6 @@
 export class NewOrderDto {
     shop: number;
-    userId: number;
+    user: number;
     address: string;
     gifts: number;
 }

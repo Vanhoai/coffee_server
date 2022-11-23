@@ -30,6 +30,15 @@ export class ShopProductService {
         return shop;
     }
 
+    async getShopProductById(id: number): Promise<ShopProductEntity> {
+        const shopProduct = await this.shopProductRepository.findOne({
+            where: { id },
+            relations: ['shop', 'product'],
+        });
+        if (!shopProduct) return null;
+        return shopProduct;
+    }
+
     async addProductToShop({ shop, product, quantity }: AddProductToShopDto): Promise<any> {
         const shopEntity: ShopEntity = await this.shopService.getShopById(shop);
         const productEntity: ProductEntity = await this.productService.findProductById(product);
@@ -67,5 +76,11 @@ export class ShopProductService {
             count,
             shopProduct: shopProducts.filter((shopProduct) => !shopProduct.deletedAt),
         };
+    }
+
+    async getAll(): Promise<ShopProductEntity[]> {
+        return await this.shopProductRepository.find({
+            relations: ['shop', 'product'],
+        });
     }
 }

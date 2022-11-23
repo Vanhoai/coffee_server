@@ -39,7 +39,7 @@ export class ShopProductController {
     @Get()
     async getAllShopProduct(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const response = await this.shopProductService.getAllShopProduct();
+            const response = await this.shopProductService.getAll();
             return res.status(HttpStatus.OK).json(HttpResponse.result('Success', 200, response));
         } catch (error: any) {
             next(error);

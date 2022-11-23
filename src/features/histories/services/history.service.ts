@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OrderEntity } from 'src/features/orders/entities/order.entity';
 import { OrderService } from 'src/features/orders/services/order.service';
 import { UserEntity } from 'src/features/users/entities/user.entity';
 import { UserService } from 'src/features/users/services/users.service';
@@ -16,6 +15,7 @@ export class HistoryService {
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
         private readonly userService: UserService,
+        @Inject(forwardRef(() => OrderService))
         private readonly orderService: OrderService,
     ) {}
 
@@ -52,7 +52,7 @@ export class HistoryService {
         history.updatedAt = new Date();
         history.deletedAt = false;
 
-        user.histories.push(history);
+        user.histories = [...user.histories, history];
 
         await this.userRepository.save(user);
 

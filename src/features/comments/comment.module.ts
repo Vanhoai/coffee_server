@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { GiftEntity } from '../gifts/entities/gift.entity';
 import { GiftService } from '../gifts/services/gift.service';
+import { HistoryEntity } from '../histories/entities/history.entity';
+import { HistoryService } from '../histories/services/history.service';
 import { ImageEntity } from '../images/image.entity';
 import { ImageService } from '../images/image.service';
 import { TypeEntity } from '../missions/entities/type.entity';
@@ -12,6 +14,7 @@ import { OrderEntity } from '../orders/entities/order.entity';
 import { OrderService } from '../orders/services/order.service';
 import { ProductEntity } from '../products/entities/product.entity';
 import { ProductService } from '../products/services/product.service';
+import { ShopProductEntity } from '../shops/entities/shop-product.entity';
 import { ShopEntity } from '../shops/entities/shop.entity';
 import { ShopService } from '../shops/services/shop.service';
 import { BalanceEntity } from '../users/entities/balance.entity';
@@ -34,6 +37,8 @@ import { CommentService } from './services/comment.service';
             GiftEntity,
             TypeEntity,
             ShopEntity,
+            HistoryEntity,
+            ShopProductEntity,
         ]),
     ],
     controllers: [CommentController],
@@ -47,7 +52,8 @@ import { CommentService } from './services/comment.service';
         GiftService,
         TypeService,
         ShopService,
+        HistoryService,
     ],
-    exports: [],
+    exports: [CommentService],
 })
 export class CommentModule {}

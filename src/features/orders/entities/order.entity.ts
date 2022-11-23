@@ -1,17 +1,7 @@
 import { GiftEntity } from 'src/features/gifts/entities/gift.entity';
 import { ShopEntity } from 'src/features/shops/entities/shop.entity';
 import { UserEntity } from 'src/features/users/entities/user.entity';
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    JoinTable,
-    ManyToMany,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { OrderToProductEntity } from './order-product.entity';
 
 @Entity({ name: 'orders' })
