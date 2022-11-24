@@ -56,7 +56,7 @@ export class ProductsService {
             ...rest,
             image: image?.url,
             comments: comments.map((comment) => {
-                const { user, createdAt, updatedAt, deletedAt, ...rest } = comment;
+                const { user, updatedAt, deletedAt, ...rest } = comment;
                 const {
                     image,
                     password,

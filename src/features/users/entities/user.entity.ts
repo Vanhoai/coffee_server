@@ -1,8 +1,8 @@
-import { IsEmail, Length, MinLength } from 'class-validator';
 import { getConfig } from 'src/config';
 import { GiftEntity } from 'src/features/gifts/entities/gift.entity';
 import { HistoryEntity } from 'src/features/histories/entities/history.entity';
 import { ImageEntity } from 'src/features/images/image.entity';
+import { MissionUserEntity } from 'src/features/missions/entities/mission-user.entity';
 import { OrderEntity } from 'src/features/orders/entities/order.entity';
 import { ProductEntity } from 'src/features/products/entities/product.entity';
 import { ShopEntity } from 'src/features/shops/entities/shop.entity';
@@ -59,6 +59,9 @@ export class UserEntity {
     @ManyToMany(() => ProductEntity)
     @JoinTable()
     favoriteProducts?: ProductEntity[];
+
+    @OneToMany(() => MissionUserEntity, (missionUser) => missionUser.user)
+    missionUsers?: MissionUserEntity[];
 
     @ManyToMany(() => GiftEntity)
     @JoinTable()

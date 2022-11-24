@@ -13,7 +13,7 @@ export const getConfig = () => {
             ? 'postgres://username:password@hostname/databasename'
             : 'postgres://sweqjour:QMdhbPmLX5v26h8ULPzlIiTlY1CuUan9@tiny.db.elephantsql.com/sweqjour',
         API: '/api/v1',
-        COR_ORIGIN: DEBUG ? 'http://localhost:3000' : 'https://coffee-shop-frontend.vercel.app',
+        COR_ORIGIN: DEBUG ? 'https://e261-1-52-111-146.ap.ngrok.io' : 'https://coffee-shop-frontend.vercel.app',
         ACCESS_TOKEN_SECRET: 'ACCESS_TOKEN_SECRET',
         REFRESH_TOKEN_SECRET: 'REFRESH_TOKEN_SECRET',
         CLOUD_NAME: 'dyhzak5ed',

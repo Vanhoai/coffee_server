@@ -37,6 +37,24 @@ export class UserController {
         }
     }
 
+    @Get(':id')
+    async getUserById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const user = await this.userService.getUserById(+id);
+            if (!user) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get user by id successfully', HttpStatus.OK, user));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Get()
     async getAllUser(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {

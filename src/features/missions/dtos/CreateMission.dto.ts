@@ -8,4 +8,8 @@ export class CreateMissionDto {
     @IsNotEmpty()
     @IsNumber()
     type: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    total: number;
 }

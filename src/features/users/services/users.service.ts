@@ -38,7 +38,15 @@ export class UserService {
     async getUserById(id: number): Promise<UserEntity> {
         return await this.userRepository.findOne({
             where: { id },
-            relations: ['histories', 'favoriteShops', 'gifts', 'orders', 'image'],
+            relations: [
+                'histories',
+                'favoriteShops',
+                'gifts',
+                'orders',
+                'image',
+                'missionUsers',
+                'missionUsers.mission',
+            ],
         });
     }
 
@@ -102,5 +110,19 @@ export class UserService {
         const productEntity = await this.productService.findProductById(product);
         userEntity.favoriteProducts.push(productEntity);
         return await this.userRepository.save(userEntity);
+    }
+
+    async updateUser(id: number, data: Partial<UserEntity>): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const updatedUser = Object.assign(user, data);
+
+        return await this.userRepository.save(updatedUser);
     }
 }
