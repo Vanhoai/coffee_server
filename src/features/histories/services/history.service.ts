@@ -32,7 +32,7 @@ export class HistoryService {
         });
     }
 
-    async createHistory({ imageId, orderId, userId }: CreateHistoryDto): Promise<HistoryEntity> {
+    async createHistory({ orderId, userId }: CreateHistoryDto): Promise<HistoryEntity> {
         const user = await this.userService.getUserById(userId);
         const order = await this.orderService.getOrderById(orderId);
 

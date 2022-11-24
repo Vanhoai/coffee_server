@@ -11,6 +11,11 @@ export class GiftController {
     async getAllGifts(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const gifts = await this.giftService.getAllGifts();
+            if (!gifts)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get all gifts failed', HttpStatus.BAD_REQUEST, {}));
+
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Get all gifts successfully', HttpStatus.OK, gifts));
@@ -23,7 +28,15 @@ export class GiftController {
     async getGiftById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get gift by id failed', HttpStatus.BAD_REQUEST, {}));
             const gift = await this.giftService.findGiftById(+id);
+            if (!gift)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get gift by id failed', HttpStatus.BAD_REQUEST, {}));
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Get gift by id successfully', HttpStatus.OK, gift));
@@ -36,6 +49,10 @@ export class GiftController {
     async createGift(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { type, code, count, expiredAt } = req.body;
+            if (!type || !code || !count || !expiredAt)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Create gift failed', HttpStatus.BAD_REQUEST, {}));
             const gift = await this.giftService.createGift({ type, code, count, expiredAt });
             if (!gift) {
                 return res
@@ -52,6 +69,10 @@ export class GiftController {
     async deleteGift(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Delete gift failed', HttpStatus.BAD_REQUEST, {}));
             const gift = await this.giftService.deleteGift(+id);
             if (!gift) {
                 return res

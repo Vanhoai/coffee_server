@@ -41,8 +41,8 @@ export class HistoryController {
     @Post()
     async createHistory(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { imageId, orderId, userId } = req.body;
-            const history = await this.historyService.createHistory({ imageId, orderId, userId });
+            const { orderId, userId } = req.body;
+            const history = await this.historyService.createHistory({ orderId, userId });
             if (!history) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)

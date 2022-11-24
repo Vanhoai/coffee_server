@@ -1,7 +1,7 @@
 import { ImageEntity } from 'src/features/images/image.entity';
 import { OrderEntity } from 'src/features/orders/entities/order.entity';
 import { UserEntity } from 'src/features/users/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'histories' })
 export class HistoryEntity {
@@ -9,12 +9,14 @@ export class HistoryEntity {
     id: number;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
+    @JoinColumn()
     image?: ImageEntity;
 
     @ManyToOne(() => UserEntity, (user) => user.histories)
     user: UserEntity;
 
     @OneToOne(() => OrderEntity)
+    @JoinColumn()
     order?: OrderEntity;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

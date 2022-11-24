@@ -8,7 +8,4 @@ export class CreateHistoryDto {
     @IsNotEmpty()
     @IsNumber()
     orderId: number;
-
-    @IsNumber()
-    imageId: number;
 }
