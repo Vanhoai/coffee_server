@@ -138,6 +138,7 @@ export class ProductService {
         if (comments.length === 0) {
             product.rating = 0;
         } else {
+            console.log(comments);
             const sum = comments.reduce((acc, comment) => acc + comment.rating, 0);
             product.rating = sum / comments.length;
         }

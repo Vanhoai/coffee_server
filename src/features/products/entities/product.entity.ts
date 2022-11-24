@@ -6,29 +6,29 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn
 
 @Entity({ name: 'products' })
 export class ProductEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     name?: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     description?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
     @JoinColumn()
     image?: ImageEntity;
 
-    @Column()
+    @Column({ type: 'float' })
     price?: number;
 
-    @Column()
+    @Column({ type: 'int' })
     explored?: number;
 
-    @Column()
+    @Column({ type: 'float' })
     rating?: number;
 
-    @Column()
+    @Column({ type: 'int' })
     quantity?: number;
 
     @OneToMany(() => CommentEntity, (comment) => comment.product)

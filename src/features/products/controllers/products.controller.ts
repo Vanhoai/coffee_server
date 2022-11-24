@@ -32,4 +32,17 @@ export class ProductsController {
             next(error);
         }
     }
+
+    @Get(':id')
+    async getProductDetail(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.productsService.getDetailProduct(+id);
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Shops found successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
 }

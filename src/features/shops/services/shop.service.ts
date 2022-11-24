@@ -34,15 +34,44 @@ export class ShopService {
         return result;
     }
 
-    async getShopById(id: number): Promise<ShopEntity> {
+    async findById(id: number): Promise<ShopEntity> {
+        return await this.shopRepository.findOne({
+            where: { id },
+            relations: ['image', 'products', 'products.product', 'products.product.image'],
+        });
+    }
+
+    async getShopById(id: number): Promise<any> {
         const shop: ShopEntity = await this.shopRepository.findOne({
             where: { id },
-            relations: ['image', 'products', 'products.product'],
+            relations: ['image', 'products', 'products.product', 'products.product.image'],
         });
         if (!shop) {
-            throw new BadRequestException('Shop not found');
+            return {};
         }
-        return shop;
+        const { image, products, createdAt, updatedAt, deletedAt, ...restShop } = shop;
+
+        return {
+            ...restShop,
+            image: image.url,
+            products: products.map((product) => {
+                const { product: productDetail, createdAt, updatedAt, deletedAt, ...restProduct } = product;
+                const {
+                    image: productImage,
+                    createdAt: productCreatedAt,
+                    updatedAt: productUpdatedAt,
+                    deletedAt: productDeletedAt,
+                    ...restProductDetail
+                } = productDetail;
+                return {
+                    ...restProduct,
+                    product: {
+                        ...restProductDetail,
+                        image: productImage.url,
+                    },
+                };
+            }),
+        };
     }
 
     async createShop({ location, description, longitude, latitude, file }: CreateShopDto): Promise<ShopEntity> {
@@ -83,7 +112,7 @@ export class ShopService {
         return await this.shopRepository.save(shop);
     }
 
-    async removeShop(id: number): Promise<ShopEntity> {
+    async removeShop(id: number): Promise<any> {
         const shop = await this.getShopById(id);
         if (!shop) return null;
         const {

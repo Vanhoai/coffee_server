@@ -34,10 +34,15 @@ export class ShopsController {
     }
 
     @Get(':id')
-    async getAllProductOfShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+    async getProductOfShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
             const response = await this.shopsService.getAllProductOfShop(parseInt(id));
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Bad Request', HttpStatus.BAD_REQUEST, {}));
+            }
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Products found successfully', HttpStatus.OK, response));

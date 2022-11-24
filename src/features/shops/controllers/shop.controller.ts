@@ -36,6 +36,11 @@ export class ShopController {
     async getShopById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Shop id is required', HttpStatus.BAD_REQUEST, {}));
+
             const response = await this.shopService.getShopById(parseInt(id));
             if (!response)
                 return res

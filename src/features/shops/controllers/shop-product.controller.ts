@@ -12,8 +12,13 @@ export class ShopProductController {
     async getAllProductFromShop(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
-            const response = await this.shopProductService.getAllProductFromShop(parseInt(id));
-            return res.status(HttpStatus.OK).json(HttpResponse.result('Success', 200, response));
+            const response = await this.shopProductService.getProductFromShop(parseInt(id));
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Bad Request', HttpStatus.BAD_REQUEST, {}));
+            }
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Success', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }
@@ -27,7 +32,8 @@ export class ShopProductController {
         @Body() body: AddProductToShopDto,
     ): Promise<any> {
         try {
-            const response = await this.shopProductService.addProductToShop({ ...body });
+            const { shop, product, quantity } = body;
+            const response = await this.shopProductService.addProductToShop({ shop, product, quantity });
             if (!response)
                 return res.status(HttpStatus.BAD_REQUEST).json(HttpResponse.result('Bad Request', 400, null));
             return res.status(HttpStatus.OK).json(HttpResponse.result('Add Product To Shop Success', 200, {}));

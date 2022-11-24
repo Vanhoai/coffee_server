@@ -6,19 +6,19 @@ import { OrderToProductEntity } from './order-product.entity';
 
 @Entity({ name: 'orders' })
 export class OrderEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
     @ManyToOne(() => UserEntity, (user) => user.orders)
     user: UserEntity;
 
-    @Column()
+    @Column({ type: 'int' })
     status: number;
 
-    @Column()
+    @Column({ type: 'float' })
     total: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     address: string;
 
     @OneToMany(() => OrderToProductEntity, (orderToProduct) => orderToProduct.order)

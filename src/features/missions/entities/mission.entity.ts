@@ -3,10 +3,10 @@ import { TypeEntity } from './type.entity';
 
 @Entity({ name: 'missions' })
 export class MissionEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'float' })
     mark: number;
 
     @ManyToOne(() => TypeEntity, (type) => type.missions)

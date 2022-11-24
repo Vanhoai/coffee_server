@@ -21,7 +21,7 @@ export class ShopProductService {
         private readonly productService: ProductService,
     ) {}
 
-    async getAllProductFromShop(id: number): Promise<ShopProductEntity> {
+    async getProductFromShop(id: number): Promise<ShopProductEntity> {
         const shop = await this.shopProductRepository.findOne({
             where: { id },
             relations: ['shops', 'products'],
@@ -40,8 +40,8 @@ export class ShopProductService {
     }
 
     async addProductToShop({ shop, product, quantity }: AddProductToShopDto): Promise<any> {
-        const shopEntity: ShopEntity = await this.shopService.getShopById(shop);
-        const productEntity: ProductEntity = await this.productService.findProductById(product);
+        const shopEntity = await this.shopService.findById(+shop);
+        const productEntity = await this.productService.findProductById(+product);
         if (!shopEntity || !productEntity) return null;
 
         productEntity.quantity -= quantity;

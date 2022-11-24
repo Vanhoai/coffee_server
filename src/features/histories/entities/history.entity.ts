@@ -5,7 +5,7 @@ import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typ
 
 @Entity({ name: 'histories' })
 export class HistoryEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
     @OneToOne(() => ImageEntity, (image) => image.id)

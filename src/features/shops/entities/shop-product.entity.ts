@@ -4,10 +4,10 @@ import { ShopEntity } from './shop.entity';
 
 @Entity('shop_product')
 export class ShopProductEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'float' })
     quantity: number;
 
     @ManyToOne(() => ShopEntity, (shop) => shop.products)

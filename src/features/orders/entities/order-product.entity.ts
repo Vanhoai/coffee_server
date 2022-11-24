@@ -4,7 +4,7 @@ import { OrderEntity } from './order.entity';
 
 @Entity({ name: 'order_products' })
 export class OrderToProductEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
     @ManyToOne(() => OrderEntity, (order) => order.products)
@@ -13,13 +13,13 @@ export class OrderToProductEntity {
     @ManyToOne(() => ProductEntity, (product) => product.orders)
     product: ProductEntity;
 
-    @Column()
+    @Column({ type: 'float' })
     price: number;
 
-    @Column()
+    @Column({ type: 'float' })
     total: number;
 
-    @Column()
+    @Column({ type: 'int' })
     count: number;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

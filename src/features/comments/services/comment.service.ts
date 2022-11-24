@@ -31,7 +31,7 @@ export class CommentService {
         });
     }
 
-    async createComment({ userId, productId, content, rating }: CreateCommentDto): Promise<CommentEntity> {
+    async createComment({ userId, productId, content, rating }: CreateCommentDto): Promise<any> {
         const user = await this.userService.getUserById(userId);
         const product = await this.productService.findProductById(productId);
 
@@ -55,7 +55,9 @@ export class CommentService {
         product.comments.push(comment);
         await this.productService.calculateRating(productId);
 
-        return await this.commentRepository.save(comment);
+        await this.commentRepository.save(comment);
+
+        return {};
     }
 
     async updateComment(id: number, content: string): Promise<CommentEntity> {

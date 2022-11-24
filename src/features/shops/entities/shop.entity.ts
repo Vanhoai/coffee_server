@@ -4,23 +4,23 @@ import { ShopProductEntity } from './shop-product.entity';
 
 @Entity({ name: 'shops' })
 export class ShopEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     location?: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     description?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
     @JoinColumn()
     image?: ImageEntity;
 
-    @Column()
+    @Column({ type: 'float' })
     longitude?: number;
 
-    @Column()
+    @Column({ type: 'float' })
     latitude?: number;
 
     @OneToMany(() => ShopProductEntity, (shopProduct) => shopProduct.shop)

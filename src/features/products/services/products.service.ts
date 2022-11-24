@@ -44,4 +44,35 @@ export class ProductsService {
             };
         });
     }
+
+    async getDetailProduct(id: number): Promise<any> {
+        const product: ProductEntity = await this.productRepository.findOne({
+            where: { id },
+            relations: ['image', 'comments', 'comments.user', 'comments.user.image'],
+        });
+
+        const { image, comments, createdAt, updatedAt, deletedAt, ...rest } = product;
+        return {
+            ...rest,
+            image: image?.url,
+            comments: comments.map((comment) => {
+                const { user, createdAt, updatedAt, deletedAt, ...rest } = comment;
+                const {
+                    image,
+                    password,
+                    createdAt: createdAtUser,
+                    updatedAt: updatedAtUser,
+                    deletedAt: deletedAtUser,
+                    ...restUser
+                } = user;
+                return {
+                    ...rest,
+                    user: {
+                        ...restUser,
+                        image: image?.url || null,
+                    },
+                };
+            }),
+        };
+    }
 }
