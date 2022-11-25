@@ -64,7 +64,7 @@ const imports = getConfig().LOCAL
       ];
 
 @Module({
-    imports,
+    imports: imports,
     controllers: [],
     providers: [],
     exports: [],

@@ -76,7 +76,7 @@ export class UserService {
         return await this.userRepository.save(user);
     }
 
-    async updateBalance(id: number, amount: number, code: string): Promise<BalanceEntity> {
+    async updateBalance(id: number, balance: number, code: string): Promise<BalanceEntity> {
         const user = await this.userRepository.findOne({
             where: { id },
             relations: ['balance'],
@@ -86,7 +86,7 @@ export class UserService {
             balance: { id: balanceId },
         } = user;
 
-        const balance = await this.balanceRepository
+        const balanceEntity = await this.balanceRepository
             .createQueryBuilder('balance')
             .where('balance.id = :id', { id: balanceId })
             .andWhere('balance.code = :code', { code })
@@ -96,9 +96,9 @@ export class UserService {
             return null;
         }
 
-        balance.amount += amount;
+        balanceEntity.amount += balance;
 
-        return this.balanceRepository.save(balance);
+        return this.balanceRepository.save(balanceEntity);
     }
 
     async addProductToFavorite(id: number, product: number): Promise<UserEntity> {
