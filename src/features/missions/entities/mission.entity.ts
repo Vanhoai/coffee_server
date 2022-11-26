@@ -10,11 +10,20 @@ export class MissionEntity {
     @Column({ type: 'float' })
     mark: number;
 
+    @Column({ type: 'varchar', length: 255 })
+    name: string;
+
+    @Column({ type: 'varchar', length: 1000 })
+    description: string;
+
     @Column({ type: 'int' })
     total: number;
 
     @ManyToOne(() => TypeEntity, (type) => type.missions)
     type: TypeEntity;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    expiredAt?: Date;
 
     @OneToMany(() => MissionUserEntity, (missionUser) => missionUser.mission)
     missionUsers: MissionUserEntity[];

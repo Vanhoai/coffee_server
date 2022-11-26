@@ -10,7 +10,7 @@ export class ShopEntity {
     @Column({ type: 'varchar', length: 255 })
     location?: string;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'varchar', length: 2000 })
     description?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)

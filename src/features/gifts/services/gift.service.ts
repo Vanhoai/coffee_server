@@ -32,7 +32,7 @@ export class GiftService {
         return gift || null;
     }
 
-    async createGift({ type, code, count, expiredAt }): Promise<GiftEntity> {
+    async createGift({ type, code, count, expiredAt, name }): Promise<GiftEntity> {
         const gift = new GiftEntity();
         const typeEntity = await this.typeService.getTypeById(type);
 
@@ -40,6 +40,7 @@ export class GiftService {
         gift.code = code;
         gift.count = count;
         gift.expiredAt = expiredAt;
+        gift.name = name;
         gift.createdAt = new Date();
         gift.updatedAt = new Date();
         gift.deletedAt = false;
@@ -51,7 +52,7 @@ export class GiftService {
         return await this.giftRepository.save(gift);
     }
 
-    async updateGift(id: number, { type, code, count, expiredAt }): Promise<GiftEntity> {
+    async updateGift(id: number, { type, code, count, expiredAt, name }): Promise<GiftEntity> {
         const gift = await this.giftRepository.findOne({
             where: { id, deletedAt: false },
             relations: ['type'],
@@ -62,6 +63,7 @@ export class GiftService {
         gift.type = typeEntity;
         gift.code = code;
         gift.count = count;
+        gift.name = name;
         gift.expiredAt = expiredAt;
         gift.updatedAt = new Date();
 

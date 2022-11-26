@@ -12,7 +12,7 @@ export class ProductEntity {
     @Column({ type: 'varchar', length: 255 })
     name?: string;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'varchar', length: 2000 })
     description?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)

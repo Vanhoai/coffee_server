@@ -10,6 +10,9 @@ export class GiftEntity {
     type: TypeEntity;
 
     @Column({ type: 'varchar', length: 255 })
+    name: string;
+
+    @Column({ type: 'varchar', length: 255 })
     code: string;
 
     @Column({ type: 'int' })

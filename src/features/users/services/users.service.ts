@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getConfig } from 'src/config';
+import { IBaseParams } from 'src/core/interfaces/IBaseParams';
 import { HistoryService } from 'src/features/histories/services/history.service';
 import { ImageService } from 'src/features/images/image.service';
 import { ProductService } from 'src/features/products/services/product.service';
@@ -42,10 +43,12 @@ export class UserService {
                 'histories',
                 'favoriteShops',
                 'gifts',
+                'gifts.type',
                 'orders',
                 'image',
                 'missionUsers',
                 'missionUsers.mission',
+                'missionUsers.mission.type',
             ],
         });
     }
@@ -124,5 +127,53 @@ export class UserService {
         const updatedUser = Object.assign(user, data);
 
         return await this.userRepository.save(updatedUser);
+    }
+
+    async getGiftOfUser(id: number, { limit, skip, field }): Promise<any> {
+        const response = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.gifts', 'gift')
+            .leftJoinAndSelect('gift.type', 'type')
+            .where('user.id = :id', { id })
+            .skip(skip || 0)
+            .limit(limit || 5)
+            .orderBy(`gift.${field || 'id'}`, 'ASC')
+            .getMany();
+
+        return response;
+    }
+
+    async getGiftToExpire(id: number, { limit, skip, field }): Promise<any> {
+        const response = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.gifts', 'gift')
+            .leftJoinAndSelect('gift.type', 'type')
+            .where('user.id = :id', { id })
+            .andWhere('gift.expiredAt > :date', { date: new Date() })
+            .skip(skip || 0)
+            .limit(limit || 5)
+            .orderBy(`gift.${field || 'id'}`, 'ASC')
+            .getOne();
+
+        const { gifts, ...rest } = response;
+        const result = {
+            ...rest,
+            gifts: gifts.map((gift) => {
+                const { createdAt, updatedAt, deletedAt, expiredAt, type, ...restGift } = gift;
+                const {
+                    createdAt: typeCreatedAt,
+                    updatedAt: typeUpdatedAt,
+                    deletedAt: typeDeletedAt,
+                    ...restType
+                } = type;
+                return {
+                    ...restGift,
+                    expiredAt: expiredAt.getTime(),
+                    type: restType,
+                };
+            }),
+        };
+
+        return result.gifts;
     }
 }

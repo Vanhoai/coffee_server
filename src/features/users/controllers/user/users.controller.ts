@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { NextFunction, Request, Response } from 'express';
+import { IBaseParams } from 'src/core/interfaces/IBaseParams';
 import { HttpResponse } from 'src/utils/HttpResponse';
 import { UserService } from '../../services/users.service';
 
@@ -129,6 +130,44 @@ export class UserController {
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Add product to favorite successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Get('gift/:id')
+    async getGiftByUserId(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const { limit, skip, field } = req.query as IBaseParams;
+            const response = await this.userService.getGiftOfUser(+id, { skip, limit, field });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get gift by user id successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Get('gift/:id/expire')
+    async getGiftExpireByUserId(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const { limit, skip, field } = req.query as IBaseParams;
+            const response = await this.userService.getGiftToExpire(+id, { skip, limit, field });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get gift expire by user id successfully', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

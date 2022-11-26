@@ -48,12 +48,12 @@ export class GiftController {
     @Post()
     async createGift(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { type, code, count, expiredAt } = req.body;
-            if (!type || !code || !count || !expiredAt)
+            const { type, code, count, expiredAt, name } = req.body;
+            if (!type || !code || !count || !expiredAt || !name)
                 return res
                     .status(HttpStatus.BAD_REQUEST)
                     .json(HttpResponse.result('Create gift failed', HttpStatus.BAD_REQUEST, {}));
-            const gift = await this.giftService.createGift({ type, code, count, expiredAt });
+            const gift = await this.giftService.createGift({ type, code, count, expiredAt, name });
             if (!gift) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)

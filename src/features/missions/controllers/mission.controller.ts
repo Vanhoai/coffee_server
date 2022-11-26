@@ -1,7 +1,8 @@
-import { Controller, Get, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
+import { Controller, Delete, Get, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
 import { MissionService } from '../services/mission.service';
 import { Request, Response, NextFunction } from 'express';
 import { HttpResponse } from 'src/utils/HttpResponse';
+import { IBaseParams } from 'src/core/interfaces/IBaseParams';
 
 @Controller('mission')
 export class MissionController {
@@ -10,7 +11,8 @@ export class MissionController {
     @Get()
     async getAllMission(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const response = await this.missionService.getAllMission();
+            const { skip, limit, field } = req.query as IBaseParams;
+            const response = await this.missionService.getAllMission({ skip, limit, field });
             if (!response)
                 return res
                     .status(HttpStatus.NOT_FOUND)
@@ -45,13 +47,13 @@ export class MissionController {
     @Post()
     async createMission(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { mark, type, total } = req.body;
+            const { mark, type, total, description } = req.body;
             if (!mark || !type || !total)
                 return res
                     .status(HttpStatus.BAD_REQUEST)
                     .json(HttpResponse.result('Mark and type are required', HttpStatus.BAD_REQUEST, {}));
 
-            const response = await this.missionService.createMission({ mark, type, total });
+            const response = await this.missionService.createMission({ mark, type, total, description });
             if (!response)
                 return res
                     .status(HttpStatus.NOT_FOUND)
@@ -99,6 +101,51 @@ export class MissionController {
                 missionId: +missionId,
                 current: +current,
             });
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Mission not found', HttpStatus.NOT_FOUND, {}));
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Get mission success', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Delete('/:id')
+    async deleteMission(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Id is required', HttpStatus.BAD_REQUEST, {}));
+            const response = await this.missionService.deleteMission(+id);
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Mission not found', HttpStatus.NOT_FOUND, {}));
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Delete mission success', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Get('user/:id')
+    async getInformationMissionAndUser(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Next() next: NextFunction,
+    ): Promise<any> {
+        try {
+            const { id } = req.params;
+            const { skip, limit, field } = req.query as IBaseParams;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Id is required', HttpStatus.BAD_REQUEST, {}));
+            const response = await this.missionService.getInformationMissionUser(+id, { skip, limit, field });
             if (!response)
                 return res
                     .status(HttpStatus.NOT_FOUND)

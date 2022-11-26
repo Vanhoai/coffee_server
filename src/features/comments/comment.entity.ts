@@ -16,7 +16,7 @@ export class CommentEntity {
     @Column({ type: 'float' })
     rating?: number;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'varchar', length: 2000 })
     content?: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
