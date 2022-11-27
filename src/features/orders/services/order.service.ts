@@ -14,6 +14,7 @@ import { CreateProductToOrderDto } from '../dtos/CreateProductToOrder.dto';
 import { NewOrderDto } from '../dtos/NewOrder.dto';
 import { OrderToProductEntity } from '../entities/order-product.entity';
 import { OrderEntity } from '../entities/order.entity';
+import { getConfig } from 'src/config';
 
 @Injectable()
 export class OrderService {
@@ -166,5 +167,39 @@ export class OrderService {
         }
 
         return await this.getOrderById(orderResponse.id);
+    }
+
+    async updateStatusOrder({ id, status }): Promise<any> {
+        const order = await this.getOrderById(id);
+        if (!order) {
+            return {
+                message: 'Order not found',
+                error: true,
+            };
+        }
+
+        // if order delivered
+        if (status === getConfig().ORDER_STATUS.DELIVERED) {
+            // create history
+            await this.historyService.createHistory({
+                userId: order.user.id,
+                orderId: order.id,
+            });
+
+            // delete order from user
+            const userEntity = await this.userRepository.findOne({
+                where: { id: order.user.id },
+                relations: ['orders'],
+            });
+
+            userEntity.orders = userEntity.orders.filter((order) => order.id !== id);
+            await this.userRepository.save(userEntity);
+
+            return await this.orderRepository.save(order);
+        }
+
+        order.status = status;
+        order.updatedAt = new Date();
+        return await this.orderRepository.save(order);
     }
 }
