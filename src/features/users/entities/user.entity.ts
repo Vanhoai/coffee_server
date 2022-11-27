@@ -30,6 +30,9 @@ export class UserEntity {
     email?: string;
 
     @Column({ type: 'varchar', length: 255 })
+    phone?: string;
+
+    @Column({ type: 'varchar', length: 255 })
     password?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)

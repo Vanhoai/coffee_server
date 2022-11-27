@@ -23,21 +23,12 @@ export class UserService {
 
     async getAllCustomer(): Promise<UserEntity[]> {
         return await this.userRepository.find({
-            relations: [
-                'histories',
-                'favoriteShops',
-                'gifts',
-                'orders',
-                'image',
-                'orders.shops',
-                'orders.gifts',
-                'orders.products',
-            ],
+            relations: ['histories', 'favoriteShops', 'gifts', 'orders', 'image', 'orders.products'],
         });
     }
 
     async getUserById(id: number): Promise<UserEntity> {
-        return await this.userRepository.findOne({
+        const response = await this.userRepository.findOne({
             where: { id },
             relations: [
                 'histories',
@@ -51,6 +42,8 @@ export class UserService {
                 'missionUsers.mission.type',
             ],
         });
+
+        return response;
     }
 
     async getAllUser(): Promise<UserEntity[]> {
@@ -115,13 +108,16 @@ export class UserService {
         return await this.userRepository.save(userEntity);
     }
 
-    async updateUser(id: number, data: Partial<UserEntity>): Promise<UserEntity> {
+    async updateUser(id: number, data: Partial<UserEntity>): Promise<any> {
         const user = await this.userRepository.findOne({
             where: { id },
         });
 
         if (!user) {
-            throw new Error('User not found');
+            return {
+                message: 'User not found',
+                error: new Error('User not found'),
+            };
         }
 
         const updatedUser = Object.assign(user, data);
@@ -175,5 +171,19 @@ export class UserService {
         };
 
         return result.gifts;
+    }
+
+    async updatePhoneNumberForUser({ id, phone }: { id: number; phone: string }): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.phone = phone;
+
+        return await this.userRepository.save(user);
     }
 }

@@ -12,8 +12,8 @@ export class AuthController {
     @Post('register')
     async register(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
-            const user = await this.authService.register({ username, email, password });
+            const { username, email, password, phone } = req.body;
+            const user = await this.authService.register({ username, email, password, phone });
             if (!user) return res.status(409).json(HttpResponse.result('Conflict', 409, {}));
             return res.status(HttpStatus.OK).json(HttpResponse.result('User Register Successfully', 200, user));
         } catch (error: any) {
@@ -24,8 +24,8 @@ export class AuthController {
     @Post('admin')
     async createAdmin(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
-            const user = await this.authService.createAdmin({ username, email, password });
+            const { username, email, password, phone } = req.body;
+            const user = await this.authService.createAdmin({ username, email, password, phone });
             if (!user) return res.status(409).json({ message: 'Conflict' });
             return res.status(HttpStatus.OK).json(HttpResponse.result('Admin Register Successfully', 200, user));
         } catch (error: any) {

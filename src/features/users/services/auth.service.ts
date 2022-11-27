@@ -25,7 +25,7 @@ export class AuthService {
         return response;
     }
 
-    async createAdmin({ username, email, password }: CreateUserDto): Promise<UserEntity> {
+    async createAdmin({ username, email, password, phone }: CreateUserDto): Promise<UserEntity> {
         const isConflict = await this.findByOption({
             key: 'email',
             value: email,
@@ -41,6 +41,7 @@ export class AuthService {
             username,
             email,
             password: hashedPassword,
+            phone,
             image: null,
             histories: [],
             role: getConfig().ROLE.ADMIN,
@@ -58,7 +59,7 @@ export class AuthService {
         return admin;
     }
 
-    async register({ username, email, password }: CreateUserDto): Promise<UserEntity> {
+    async register({ username, email, password, phone }: CreateUserDto): Promise<UserEntity> {
         const isConflict = await this.findByOption({
             key: 'email',
             value: email,
@@ -76,6 +77,7 @@ export class AuthService {
             email,
             password: hashedPassword,
             image: null,
+            phone,
             histories: [],
             favoriteShops: [],
             gifts: [],

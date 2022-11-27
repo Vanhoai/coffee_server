@@ -239,6 +239,14 @@ export class MissionService {
         ]);
 
         const [user, missions, count] = response;
+
+        if (!user || !missions || !count) {
+            return {
+                message: 'User not found',
+                error: new Error('In valid'),
+            };
+        }
+
         const totalGiftOfUser = user.gifts.length;
         const listGiftOfUser = user.gifts.map((gift) => {
             const { createdAt, updatedAt, deletedAt, type, ...rest } = gift;
