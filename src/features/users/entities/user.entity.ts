@@ -55,8 +55,8 @@ export class UserEntity {
     @Column({ default: 0, type: 'float' })
     exp?: number;
 
-    // @Column({ type: 'varchar', length: 500 })
-    // deviceToken?: string;
+    @Column({ type: 'varchar', length: 500 })
+    deviceToken?: string;
 
     @ManyToMany(() => ShopEntity)
     @JoinTable()

@@ -264,7 +264,7 @@ export class MissionService {
             totalGift: totalGiftOfUser,
             totalMission,
             totalMissionProgress: count,
-            listGift: listGiftOfUser,
+            listGifts: listGiftOfUser,
             listMissions: missionsResponse.map((mission) => {
                 const { createdAt, updatedAt, deletedAt, type, missionUsers, ...rest } = mission;
                 let current = 0;
