@@ -19,6 +19,9 @@ export const getConfig = () => {
         CLOUD_NAME: 'dyhzak5ed',
         API_KEY: '667478132612627',
         API_SECRET: '6wCTl19e57JKU6a4YebhTqt7cC8',
+        USER_EMAIL: 'tvhoai241223@gmail.com',
+        PASSWORD_EMAIL: 'obcgyhgmvkunuufh',
+        HOST_EMAIL: 'smtp.gmail.com',
         ORDER_STATUS: {
             CREATED: 'CREATED',
             PAID: 'PAID',

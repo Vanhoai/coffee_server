@@ -196,4 +196,28 @@ export class UserController {
             next(error);
         }
     }
+
+    @Put('token/:id')
+    async updateDeviceToken(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const { token } = req.body;
+            if (!token) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Bad request', HttpStatus.BAD_REQUEST, {}));
+            }
+            const response = await this.userService.updateDeviceTokenForUser({ id: +id, token });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Update device token successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
 }

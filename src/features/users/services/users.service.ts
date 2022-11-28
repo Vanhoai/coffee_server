@@ -183,6 +183,22 @@ export class UserService {
         }
 
         user.phone = phone;
+        user.updatedAt = new Date();
+
+        return await this.userRepository.save(user);
+    }
+
+    async updateDeviceTokenForUser({ id, token }: { id: number; token: string }): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.deviceToken = token;
+        user.updatedAt = new Date();
 
         return await this.userRepository.save(user);
     }

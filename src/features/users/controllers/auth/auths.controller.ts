@@ -78,4 +78,23 @@ export class AuthController {
             next(error);
         }
     }
+
+    @Post('reset')
+    async resetPassword(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { email, password } = req.body;
+            if (!email || !password) return res.status(400).json(HttpResponse.result('Bad Request', 400, {}));
+            const response = await this.authService.resetPassword({ email, password });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Reset password successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
 }

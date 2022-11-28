@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from 'src/core/middlewares/auth.middeware';
 import { RoleMiddleware } from 'src/core/middlewares/role.middleware';
+import { MailService } from 'src/core/services/mailer.service';
 import { TokenService } from 'src/core/services/token.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ImageEntity } from '../images/image.entity';
@@ -19,7 +20,16 @@ import { UserService } from './services/users.service';
 @Module({
     imports: [TypeOrmModule.forFeature([UserEntity, ImageEntity, BalanceEntity, ProductEntity])],
     controllers: [AuthController, UserController],
-    providers: [AuthService, UserService, JwtService, TokenService, ImageService, CloudinaryService, ProductService],
+    providers: [
+        AuthService,
+        UserService,
+        JwtService,
+        TokenService,
+        ImageService,
+        CloudinaryService,
+        ProductService,
+        MailService,
+    ],
     exports: [],
 })
 export class UserModule {}

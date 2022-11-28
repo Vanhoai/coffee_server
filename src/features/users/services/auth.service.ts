@@ -9,6 +9,7 @@ import { getConfig } from 'src/config';
 import { LoginUserDto } from '../dtos/LoginUser.dto';
 import { JWTPayload } from 'src/core/interfaces/JWTPayload';
 import { BalanceEntity } from '../entities/balance.entity';
+import { MailService } from 'src/core/services/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +17,9 @@ export class AuthService {
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
         @InjectRepository(BalanceEntity)
-        private balanceRepository: Repository<BalanceEntity>,
-        private JWT: TokenService,
+        private readonly balanceRepository: Repository<BalanceEntity>,
+        private readonly JWT: TokenService,
+        private readonly mailService: MailService,
     ) {}
 
     async findByOption({ key, value }): Promise<UserEntity> {
@@ -163,5 +165,28 @@ export class AuthService {
         balance.amount = 0;
         await this.balanceRepository.save(balance);
         return balance;
+    }
+
+    async resetPassword({ email, password }: { email: string; password: string }): Promise<any> {
+        const user = await this.userRepository.findOne({ where: { email } });
+        if (!user)
+            return {
+                message: 'User not found',
+            };
+
+        await this.mailService.sendMail({
+            from: 'tvhoai241223@gmail.com',
+            to: email,
+            content: 'Reset Password Successfully !',
+            subject: 'Reset Password',
+        });
+
+        const salt = await bcrypt.genSalt(Number(10));
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        user.password = hashedPassword;
+        await this.userRepository.save(user);
+
+        return user;
     }
 }
