@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
+import { ConsoleLogger, Controller, Delete, Get, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
 import { MissionService } from '../services/mission.service';
 import { Request, Response, NextFunction } from 'express';
 import { HttpResponse } from 'src/utils/HttpResponse';
@@ -7,6 +7,21 @@ import { IBaseParams } from 'src/core/interfaces/IBaseParams';
 @Controller('mission')
 export class MissionController {
     constructor(private readonly missionService: MissionService) {}
+
+    @Get('information')
+    async getInformationMission(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { skip, limit, field } = req.query as IBaseParams;
+            const response = await this.missionService.getInformationMission({ skip: +skip, limit: +limit, field });
+            if (!response)
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Mission not found', HttpStatus.NOT_FOUND, {}));
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Get mission success', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
 
     @Get()
     async getAllMission(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {

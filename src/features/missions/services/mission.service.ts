@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftService } from 'src/features/gifts/services/gift.service';
 import { UserService } from 'src/features/users/services/users.service';
@@ -301,21 +301,42 @@ export class MissionService {
             await this.missionRepository
                 .createQueryBuilder('mission')
                 .leftJoinAndSelect('mission.type', 'type')
-                .orderBy(`mission.'expiredAt'}`, 'ASC')
+                .orderBy(`mission.expiredAt`, 'ASC')
                 .getOne(),
             await this.missionRepository
                 .createQueryBuilder('mission')
                 .leftJoinAndSelect('mission.type', 'type')
                 .orderBy(`mission.${field || 'expiredAt'}`, 'ASC')
-                .skip(skip)
-                .limit(limit)
+                .skip(skip || 0)
+                .limit(limit || 10)
                 .getMany(),
         ]);
 
         const [hottest, missions] = response;
+        const { createdAt, updatedAt, deletedAt, type, ...restHottest } = hottest;
+        const { createdAt: createdAtType, updatedAt: updatedAtType, deletedAt: deletedAtType, ...restType } = type;
         return {
-            hottest,
-            missions,
+            hottest: {
+                ...restHottest,
+                type: {
+                    ...restType,
+                },
+            },
+            missions: missions.map((mission) => {
+                const { createdAt, updatedAt, deletedAt, type, ...rest } = mission;
+                const {
+                    createdAt: createdAtType,
+                    updatedAt: updatedAtType,
+                    deletedAt: deletedAtType,
+                    ...restType
+                } = type;
+                return {
+                    ...rest,
+                    type: {
+                        ...restType,
+                    },
+                };
+            }),
         };
     }
 }
