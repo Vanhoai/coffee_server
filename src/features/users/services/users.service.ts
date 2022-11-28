@@ -52,7 +52,7 @@ export class UserService {
         });
     }
 
-    async uploadAvatar({ id: userId, file }: UpdateImageDto): Promise<UserEntity> {
+    async uploadAvatar({ id: userId, file }: UpdateImageDto): Promise<any> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
         });
@@ -69,7 +69,18 @@ export class UserService {
         const newImage = await this.imageService.createImage(file, 'users');
         user.image = newImage;
 
-        return await this.userRepository.save(user);
+        await this.userRepository.save(user);
+
+        const response = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['image', 'balance'],
+        });
+
+        const { image: avatar, ...rest } = response;
+        return {
+            ...rest,
+            image: avatar ? avatar.url : null,
+        };
     }
 
     async updateBalance(id: number, balance: number, code: string): Promise<BalanceEntity> {
@@ -134,9 +145,17 @@ export class UserService {
             .skip(skip || 0)
             .limit(limit || 5)
             .orderBy(`gift.${field || 'id'}`, 'ASC')
-            .getMany();
+            .getOne();
 
-        return response;
+        const { gifts } = response;
+        return gifts.map((gift) => {
+            const { createdAt, updatedAt, deletedAt, type, ...rest } = gift;
+            const { createdAt: typeCreatedAt, updatedAt: typeUpdatedAt, deletedAt: typeDeletedAt, ...restType } = type;
+            return {
+                ...rest,
+                type: restType,
+            };
+        });
     }
 
     async getGiftToExpire(id: number, { limit, skip, field }): Promise<any> {

@@ -242,8 +242,11 @@ export class MissionService {
 
         if (!user || !missions || !count) {
             return {
-                message: 'User not found',
-                error: new Error('In valid'),
+                totalGift: 0,
+                totalMission: 0,
+                totalMissionProgress: 0,
+                listGifts: [],
+                listMissions: [],
             };
         }
 
@@ -290,6 +293,29 @@ export class MissionService {
                     },
                 };
             }),
+        };
+    }
+
+    async getInformationMission({ skip, limit, field }): Promise<any> {
+        const response = await Promise.all([
+            await this.missionRepository
+                .createQueryBuilder('mission')
+                .leftJoinAndSelect('mission.type', 'type')
+                .orderBy(`mission.'expiredAt'}`, 'ASC')
+                .getOne(),
+            await this.missionRepository
+                .createQueryBuilder('mission')
+                .leftJoinAndSelect('mission.type', 'type')
+                .orderBy(`mission.${field || 'expiredAt'}`, 'ASC')
+                .skip(skip)
+                .limit(limit)
+                .getMany(),
+        ]);
+
+        const [hottest, missions] = response;
+        return {
+            hottest,
+            missions,
         };
     }
 }

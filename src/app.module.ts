@@ -16,6 +16,9 @@ import { ShopModule } from './features/shops/shops.module';
 import { UserModule } from './features/users/users.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { FirebaseAdminModule } from '@aginix/nestjs-firebase-admin';
+import admin, { ServiceAccount } from 'firebase-admin';
+import credentials from '../google-services.json';
 
 const imports = getConfig().LOCAL
     ? [
@@ -64,6 +67,11 @@ const imports = getConfig().LOCAL
                           strict: true,
                       },
                   },
+              }),
+          }),
+          FirebaseAdminModule.forRootAsync({
+              useFactory: () => ({
+                  credential: admin.credential.cert(credentials as ServiceAccount),
               }),
           }),
       ]
