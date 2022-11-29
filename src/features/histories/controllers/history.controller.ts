@@ -73,4 +73,22 @@ export class HistoryController {
             next(error);
         }
     }
+
+    @Get('/user/:id')
+    async getHistoriesByUserId(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const histories = await this.historyService.getAllHistoryByUserId(+id);
+            if (!histories) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get histories by user id failed', HttpStatus.BAD_REQUEST));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get histories by user id successfully', HttpStatus.OK, histories));
+        } catch (error) {
+            next(error);
+        }
+    }
 }

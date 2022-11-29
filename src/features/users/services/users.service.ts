@@ -32,6 +32,7 @@ export class UserService {
             where: { id },
             relations: [
                 'histories',
+                'histories.order',
                 'favoriteShops',
                 'gifts',
                 'gifts.type',

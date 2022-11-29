@@ -313,7 +313,7 @@ export class MissionService {
         ]);
 
         const [hottest, missions] = response;
-        const { createdAt, updatedAt, deletedAt, type, ...restHottest } = hottest;
+        const { createdAt, updatedAt, deletedAt, type, missionUsers, ...restHottest } = hottest;
         const { createdAt: createdAtType, updatedAt: updatedAtType, deletedAt: deletedAtType, ...restType } = type;
         return {
             hottest: {

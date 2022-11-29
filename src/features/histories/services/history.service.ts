@@ -91,4 +91,20 @@ export class HistoryService {
 
         return await this.historyRepository.remove(history);
     }
+
+    async getAllHistoryByUserId(id: number): Promise<HistoryEntity[]> {
+        const user = await this.userService.getUserById(id);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const response = await this.historyRepository
+            .createQueryBuilder('history')
+            .leftJoinAndSelect('history.user', 'user')
+            .leftJoinAndSelect('history.order', 'order')
+            .where('user.id = :userId', { userId: id })
+            .getMany();
+
+        return response;
+    }
 }

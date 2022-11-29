@@ -64,7 +64,6 @@ export class OrderService {
     async getAllOrder(): Promise<OrderEntity[]> {
         return await this.orderRepository.find({
             relations: ['user', 'products'],
-            where: { deletedAt: false },
         });
     }
 
@@ -132,6 +131,7 @@ export class OrderService {
         await this.orderRepository.save(order);
 
         product.orders.push(orderToProduct);
+        product.explored += count;
         await this.productRepository.save(product);
 
         const shopProductEntity = await this.shopProductRepository
@@ -179,6 +179,7 @@ export class OrderService {
         }
 
         // if order delivered
+        // status == 3
         if (status === getConfig().ORDER_STATUS.DELIVERED) {
             // create history
             await this.historyService.createHistory({
@@ -191,11 +192,15 @@ export class OrderService {
                 where: { id: order.user.id },
                 relations: ['orders'],
             });
+            order.deletedAt = true;
+            order.updatedAt = new Date();
+            await this.orderRepository.save(order);
 
             userEntity.orders = userEntity.orders.filter((order) => order.id !== id);
             await this.userRepository.save(userEntity);
-
-            return await this.orderRepository.save(order);
+            return {
+                message: 'Order delivered',
+            };
         }
 
         order.status = status;

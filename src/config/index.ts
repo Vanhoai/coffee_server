@@ -23,10 +23,10 @@ export const getConfig = () => {
         PASSWORD_EMAIL: 'obcgyhgmvkunuufh',
         HOST_EMAIL: 'smtp.gmail.com',
         ORDER_STATUS: {
-            CREATED: 'CREATED',
-            PAID: 'PAID',
-            DELIVERING: 'DELIVERING',
-            DELIVERED: 'DELIVERED',
+            CREATED: 0,
+            PAID: 1,
+            DELIVERING: 2,
+            DELIVERED: 3,
         },
         ROLE: {
             ADMIN: 'ADMIN',

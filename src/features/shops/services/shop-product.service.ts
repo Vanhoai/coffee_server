@@ -42,19 +42,40 @@ export class ShopProductService {
     async addProductToShop({ shop, product, quantity }: AddProductToShopDto): Promise<any> {
         const shopEntity = await this.shopService.findById(+shop);
         const productEntity = await this.productService.findProductById(+product);
-        if (!shopEntity || !productEntity) return null;
+        if (!shopEntity || !productEntity)
+            return {
+                message: 'Shop or product not found',
+            };
+        if (quantity > productEntity.quantity)
+            return {
+                message: 'Quantity is greater than product quantity',
+            };
+
+        const shopProduct = await this.shopProductRepository
+            .createQueryBuilder('shopProduct')
+            .where('shopProduct.shopId = :shopId', { shopId: +shop })
+            .andWhere('shopProduct.productId = :productId', { productId: +product })
+            .getOne();
 
         productEntity.quantity -= quantity;
+        await this.productRepository.save(productEntity);
+        if (shopProduct) {
+            shopProduct.quantity += quantity;
+            await this.shopProductRepository.save(shopProduct);
+            return {
+                message: 'Update shop product successfully',
+            };
+        }
 
-        const shopProduct = new ShopProductEntity();
-        shopProduct.shop = shopEntity;
-        shopProduct.product = productEntity;
-        shopProduct.quantity = quantity;
-        shopProduct.createdAt = new Date();
-        shopProduct.updatedAt = new Date();
-        shopProduct.deletedAt = false;
+        const newShopProduct = new ShopProductEntity();
+        newShopProduct.shop = shopEntity;
+        newShopProduct.product = productEntity;
+        newShopProduct.quantity = quantity;
+        newShopProduct.createdAt = new Date();
+        newShopProduct.updatedAt = new Date();
+        newShopProduct.deletedAt = false;
 
-        await this.shopProductRepository.save(shopProduct);
+        await this.shopProductRepository.save(newShopProduct);
 
         shopEntity.products.push(shopProduct);
         productEntity.shops.push(shopProduct);
@@ -62,7 +83,13 @@ export class ShopProductService {
         await this.shopRepository.save(shopEntity);
         await this.productRepository.save(productEntity);
 
-        return shopProduct;
+        const { product: productResponse, shop: shopResponse } = newShopProduct;
+        return {
+            shopProduct: {
+                product: productResponse,
+                shop: shopResponse,
+            },
+        };
     }
 
     async getAllShopProduct(): Promise<any> {

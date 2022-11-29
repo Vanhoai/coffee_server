@@ -34,9 +34,7 @@ export class ShopProductController {
         try {
             const { shop, product, quantity } = body;
             const response = await this.shopProductService.addProductToShop({ shop, product, quantity });
-            if (!response)
-                return res.status(HttpStatus.BAD_REQUEST).json(HttpResponse.result('Bad Request', 400, null));
-            return res.status(HttpStatus.OK).json(HttpResponse.result('Add Product To Shop Success', 200, {}));
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Add Product To Shop Success', 200, response));
         } catch (error: any) {
             next(error);
         }
