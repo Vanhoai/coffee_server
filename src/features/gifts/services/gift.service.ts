@@ -105,4 +105,17 @@ export class GiftService {
 
         return gift;
     }
+
+    async getGiftOfUser(id: number): Promise<GiftEntity[]> {
+        const gifts = await this.giftRepository
+            .createQueryBuilder('gift')
+            .leftJoinAndSelect('gift.type', 'type')
+            .leftJoinAndSelect('type.mission', 'mission')
+            .leftJoinAndSelect('mission.user', 'user')
+            .where('user.id = :id', { id })
+            .andWhere('gift.deletedAt = :deletedAt', { deletedAt: false })
+            .getMany();
+
+        return gifts;
+    }
 }

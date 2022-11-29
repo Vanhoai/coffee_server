@@ -84,11 +84,17 @@ export class UserService {
         };
     }
 
-    async updateBalance(id: number, balance: number, code: string): Promise<BalanceEntity> {
+    async updateBalance(id: number, balance: number, code: string): Promise<any> {
         const user = await this.userRepository.findOne({
             where: { id },
             relations: ['balance'],
         });
+
+        if (!user) {
+            return {
+                message: 'User not found',
+            };
+        }
 
         const {
             balance: { id: balanceId },
@@ -101,12 +107,17 @@ export class UserService {
             .getOne();
 
         if (!balance) {
-            return null;
+            return {
+                message: 'Balance not found',
+            };
         }
 
         balanceEntity.amount += balance;
-
-        return this.balanceRepository.save(balanceEntity);
+        await this.balanceRepository.save(balanceEntity);
+        return await this.userRepository.findOne({
+            where: { id },
+            relations: ['balance'],
+        });
     }
 
     async addProductToFavorite(id: number, product: number): Promise<UserEntity> {
