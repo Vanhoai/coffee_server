@@ -100,11 +100,9 @@ export class UserService {
             balance: { id: balanceId },
         } = user;
 
-        const balanceEntity = await this.balanceRepository
-            .createQueryBuilder('balance')
-            .where('balance.id = :id', { id: balanceId })
-            .andWhere('balance.code = :code', { code })
-            .getOne();
+        const balanceEntity = await this.balanceRepository.findOne({
+            where: { id: balanceId },
+        });
 
         if (!balance) {
             return {
