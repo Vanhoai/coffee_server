@@ -92,7 +92,7 @@ export class HistoryService {
         return await this.historyRepository.remove(history);
     }
 
-    async getAllHistoryByUserId(id: number): Promise<HistoryEntity[]> {
+    async getAllHistoryByUserId(id: number): Promise<any> {
         const user = await this.userService.getUserById(id);
         if (!user) {
             throw new Error('User not found');
@@ -105,6 +105,12 @@ export class HistoryService {
             .where('user.id = :userId', { userId: id })
             .getMany();
 
-        return response;
+        return response.map((item) => {
+            const { user, order, createdAt, deletedAt, ...rest } = item;
+            return {
+                ...rest,
+                price: order.total,
+            };
+        });
     }
 }

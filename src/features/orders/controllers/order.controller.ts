@@ -52,13 +52,13 @@ export class OrderController {
     @Post()
     async createOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { user, address, shop, gifts, products } = req.body;
-            if (!user || !address || !shop || !gifts || !products) {
+            const { user, address, shop, products } = req.body;
+            if (!user || !address || !shop || !products) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)
                     .json(HttpResponse.result('Missing params', HttpStatus.BAD_REQUEST));
             }
-            const order = await this.orderService.createOrder({ user, address, gifts, products, shop });
+            const order = await this.orderService.createOrder({ user, address, products, shop });
             if (!order) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)

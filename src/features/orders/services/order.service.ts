@@ -15,6 +15,7 @@ import { NewOrderDto } from '../dtos/NewOrder.dto';
 import { OrderToProductEntity } from '../entities/order-product.entity';
 import { OrderEntity } from '../entities/order.entity';
 import { getConfig } from 'src/config';
+import { BalanceEntity } from 'src/features/users/entities/balance.entity';
 
 @Injectable()
 export class OrderService {
@@ -31,6 +32,8 @@ export class OrderService {
         private readonly shopProductRepository: Repository<ShopProductEntity>,
         @InjectRepository(ProductEntity)
         private readonly productRepository: Repository<ProductEntity>,
+        @InjectRepository(BalanceEntity)
+        private readonly balanceRepository: Repository<BalanceEntity>,
         private readonly userService: UserService,
         private readonly productService: ProductService,
         private readonly giftService: GiftService,
@@ -198,6 +201,18 @@ export class OrderService {
 
             userEntity.orders = userEntity.orders.filter((order) => order.id !== id);
             await this.userRepository.save(userEntity);
+
+            const {
+                balance: { id },
+            } = userEntity;
+
+            const balanceEntity = await this.balanceRepository.findOne({
+                where: { id },
+            });
+
+            balanceEntity.amount -= order.total;
+            await this.balanceRepository.save(balanceEntity);
+
             return {
                 message: 'Order delivered',
             };
