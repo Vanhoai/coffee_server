@@ -72,7 +72,7 @@ export class OrderService {
 
     async getOrderById(id: number): Promise<OrderEntity> {
         return await this.orderRepository.findOne({
-            where: { id },
+            where: { id, deletedAt: false },
             relations: ['user', 'products'],
         });
     }
@@ -156,9 +156,17 @@ export class OrderService {
         await this.shopProductRepository.save(shopProductEntity);
     }
 
-    async createOrder({ user, address, products, shop }: CreateOrderDto): Promise<any> {
+    async createOrder({ user, address, products, shop, gifts }: CreateOrderDto): Promise<any> {
         const order = await this.newOrder({ user, address });
         const orderResponse = await this.getOrderById(order.id);
+        const giftEntity = await this.giftService.findGiftById(gifts);
+
+        if (giftEntity) {
+            // remove gift from user
+            const userEntity = await this.userService.getUserById(user);
+            userEntity.gifts = userEntity.gifts.filter((gift) => gift.id !== giftEntity.id);
+            await this.userRepository.save(userEntity);
+        }
 
         for (const product of products) {
             await this.addProductToOrder({
@@ -169,7 +177,12 @@ export class OrderService {
             });
         }
 
-        return await this.getOrderById(orderResponse.id);
+        const response = await this.getOrderById(orderResponse.id);
+
+        const { createdAt, updatedAt, deletedAt, user: userResponse, products: productsResponse, ...rest } = response;
+        return {
+            ...rest,
+        };
     }
 
     async updateStatusOrder({ id, status }): Promise<any> {
@@ -193,13 +206,16 @@ export class OrderService {
             // delete order from user
             const userEntity = await this.userRepository.findOne({
                 where: { id: order.user.id },
-                relations: ['orders'],
+                relations: ['orders', 'balance'],
             });
+
             order.deletedAt = true;
             order.updatedAt = new Date();
             await this.orderRepository.save(order);
 
-            userEntity.orders = userEntity.orders.filter((order) => order.id !== id);
+            userEntity.orders = userEntity.orders.filter((item) => {
+                return item.id !== order.id;
+            });
             await this.userRepository.save(userEntity);
 
             const {

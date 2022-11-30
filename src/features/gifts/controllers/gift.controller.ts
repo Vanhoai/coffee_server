@@ -84,4 +84,26 @@ export class GiftController {
             next(error);
         }
     }
+
+    @Get('user/:id')
+    async getGiftOfUser(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            if (!id)
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get gift of user failed', HttpStatus.BAD_REQUEST, {}));
+            const gift = await this.giftService.getGiftOfUser(+id);
+            if (!gift) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get gift of user failed', HttpStatus.BAD_REQUEST));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get gift of user successfully', HttpStatus.OK, gift));
+        } catch (error) {
+            next(error);
+        }
+    }
 }

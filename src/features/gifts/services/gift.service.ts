@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeEntity } from 'src/features/missions/entities/type.entity';
 import { TypeService } from 'src/features/missions/services/type.service';
+import { UserService } from 'src/features/users/services/users.service';
 import { Repository } from 'typeorm';
 import { GiftEntity } from '../entities/gift.entity';
 
@@ -13,6 +14,7 @@ export class GiftService {
         @InjectRepository(TypeEntity)
         private readonly typeRepository: Repository<TypeEntity>,
         private readonly typeService: TypeService,
+        private readonly userService: UserService,
     ) {}
 
     async getAllGifts(): Promise<any> {
@@ -106,16 +108,17 @@ export class GiftService {
         return gift;
     }
 
-    async getGiftOfUser(id: number): Promise<GiftEntity[]> {
-        const gifts = await this.giftRepository
-            .createQueryBuilder('gift')
-            .leftJoinAndSelect('gift.type', 'type')
-            .leftJoinAndSelect('type.mission', 'mission')
-            .leftJoinAndSelect('mission.user', 'user')
-            .where('user.id = :id', { id })
-            .andWhere('gift.deletedAt = :deletedAt', { deletedAt: false })
-            .getMany();
+    async getGiftOfUser(id: number): Promise<any> {
+        const userEntity = await this.userService.getUserById(id);
+        const response = userEntity.gifts.map((gift) => {
+            const { createdAt, updatedAt, deletedAt, type, ...rest } = gift;
+            const { createdAt: typeCreatedAt, updatedAt: typeUpdatedAt, deletedAt: typeDeletedAt, ...restType } = type;
+            return {
+                ...rest,
+                type: restType,
+            };
+        });
 
-        return gifts;
+        return response;
     }
 }

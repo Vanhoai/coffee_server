@@ -28,21 +28,20 @@ export class UserService {
     }
 
     async getUserById(id: number): Promise<UserEntity> {
-        const response = await this.userRepository.findOne({
-            where: { id },
-            relations: [
-                'histories',
-                'histories.order',
-                'favoriteShops',
-                'gifts',
-                'gifts.type',
-                'orders',
-                'image',
-                'missionUsers',
-                'missionUsers.mission',
-                'missionUsers.mission.type',
-            ],
-        });
+        // where order deleted at false
+
+        const response = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.image', 'image')
+            .leftJoinAndSelect('user.balance', 'balance')
+            .leftJoinAndSelect('user.gifts', 'gift')
+            .leftJoinAndSelect('gift.type', 'type')
+            .leftJoinAndSelect('user.orders', 'order')
+            .leftJoinAndSelect('user.histories', 'history')
+            .leftJoinAndSelect('user.favoriteProducts', 'favoriteProduct')
+            .where('user.id = :id', { id })
+            .andWhere('order.deletedAt = :deletedAt', { deletedAt: false })
+            .getOne();
 
         return response;
     }
@@ -101,21 +100,17 @@ export class UserService {
         } = user;
 
         const balanceEntity = await this.balanceRepository.findOne({
-            where: { id: balanceId },
+            where: { id: balanceId, code },
         });
 
-        if (!balance) {
+        if (!balanceEntity) {
             return {
                 message: 'Balance not found',
             };
         }
 
         balanceEntity.amount += balance;
-        await this.balanceRepository.save(balanceEntity);
-        return await this.userRepository.findOne({
-            where: { id },
-            relations: ['balance'],
-        });
+        return await this.balanceRepository.save(balanceEntity);
     }
 
     async addProductToFavorite(id: number, product: number): Promise<UserEntity> {
