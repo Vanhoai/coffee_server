@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderService } from 'src/features/orders/services/order.service';
+import { ProductEntity } from 'src/features/products/entities/product.entity';
 import { ProductService } from 'src/features/products/services/product.service';
 import { UserService } from 'src/features/users/services/users.service';
 import { Repository } from 'typeorm';
@@ -15,6 +16,8 @@ export class CommentService {
         private readonly userService: UserService,
         @Inject(forwardRef(() => OrderService))
         private readonly orderService: OrderService,
+        @InjectRepository(ProductEntity)
+        private readonly productRepository: Repository<ProductEntity>,
         private readonly productService: ProductService,
     ) {}
 
@@ -36,11 +39,17 @@ export class CommentService {
         const product = await this.productService.findProductById(productId);
 
         if (!user) {
-            throw new Error('User not found');
+            return {
+                status: 404,
+                message: 'User not found',
+            };
         }
 
         if (!product) {
-            throw new Error('Product not found');
+            return {
+                status: 404,
+                message: 'Product not found',
+            };
         }
 
         const comment = new CommentEntity();
@@ -51,13 +60,25 @@ export class CommentService {
         comment.createdAt = new Date();
         comment.updatedAt = new Date();
         comment.deletedAt = false;
-
-        product.comments.push(comment);
-        await this.productService.calculateRating(productId);
-
         await this.commentRepository.save(comment);
 
+        product.comments.push(comment);
+        await this.calculateRating(productId);
+
         return {};
+    }
+
+    async calculateRating(id: number): Promise<any> {
+        const product = await this.productRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['comments'],
+        });
+
+        const { comments } = product;
+        const sum = comments.reduce((acc, comment) => acc + comment.rating, 0);
+        product.rating = sum / comments.length;
+
+        return await this.productRepository.save(product);
     }
 
     async updateComment(id: number, content: string): Promise<CommentEntity> {

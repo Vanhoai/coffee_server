@@ -27,9 +27,14 @@ export class UserService {
         });
     }
 
-    async getUserById(id: number): Promise<UserEntity> {
-        // where order deleted at false
+    async findOne(id: number): Promise<UserEntity> {
+        return await this.userRepository.findOne({
+            where: { id },
+            relations: ['image', 'balance'],
+        });
+    }
 
+    async getUserById(id: number): Promise<UserEntity> {
         const response = await this.userRepository
             .createQueryBuilder('user')
             .leftJoinAndSelect('user.image', 'image')
@@ -42,6 +47,22 @@ export class UserService {
             .where('user.id = :id', { id })
             .andWhere('order.deletedAt = :deletedAt', { deletedAt: false })
             .getOne();
+
+        if (!response) {
+            return await this.userRepository
+                .createQueryBuilder('user')
+                .leftJoinAndSelect('user.image', 'image')
+                .leftJoinAndSelect('user.balance', 'balance')
+                .leftJoinAndSelect('user.gifts', 'gift')
+                .leftJoinAndSelect('gift.type', 'type')
+                .leftJoinAndSelect('user.orders', 'order')
+                .leftJoinAndSelect('user.histories', 'history')
+                .leftJoinAndSelect('user.favoriteProducts', 'favoriteProduct')
+                .leftJoinAndSelect('user.missionUsers', 'missionUser')
+                .leftJoinAndSelect('missionUser.mission', 'mission')
+                .where('user.id = :id', { id })
+                .getOne();
+        }
 
         return response;
     }

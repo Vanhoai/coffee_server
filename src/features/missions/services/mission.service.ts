@@ -181,7 +181,7 @@ export class MissionService {
                 count: 1,
                 name: `Sale ${percent}%`,
                 type: missionEntity.type.id,
-                expiredAt: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+                expiredAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
             });
             userEntity.gifts.push(gift);
 
@@ -313,6 +313,12 @@ export class MissionService {
         ]);
 
         const [hottest, missions] = response;
+        if (!hottest || !missions) {
+            return {
+                hottest: null,
+                missions: [],
+            };
+        }
         const { createdAt, updatedAt, deletedAt, type, missionUsers, ...restHottest } = hottest;
         const { createdAt: createdAtType, updatedAt: updatedAtType, deletedAt: deletedAtType, ...restType } = type;
         return {

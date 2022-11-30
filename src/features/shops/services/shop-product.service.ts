@@ -75,21 +75,17 @@ export class ShopProductService {
         newShopProduct.updatedAt = new Date();
         newShopProduct.deletedAt = false;
 
-        await this.shopProductRepository.save(newShopProduct);
-
         shopEntity.products.push(shopProduct);
         productEntity.shops.push(shopProduct);
 
         await this.shopRepository.save(shopEntity);
         await this.productRepository.save(productEntity);
 
-        const { product: productResponse, shop: shopResponse } = newShopProduct;
-        return {
-            shopProduct: {
-                product: productResponse,
-                shop: shopResponse,
-            },
-        };
+        await this.shopProductRepository.save(newShopProduct);
+
+        return this.shopProductRepository.findOne({
+            where: { id: newShopProduct.id },
+        });
     }
 
     async getAllShopProduct(): Promise<any> {
