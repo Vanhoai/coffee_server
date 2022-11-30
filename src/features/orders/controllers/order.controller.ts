@@ -86,6 +86,22 @@ export class OrderController {
         }
     }
 
+    @Put('update')
+    async updateOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { shop, product, order, type, count } = req.body;
+            const response = await this.orderService.updateProductOfOrder({ shop, product, order, type, count });
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Update order fail', HttpStatus.BAD_REQUEST));
+            }
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Update order', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Put(':id')
     async updateStatusOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
@@ -103,6 +119,17 @@ export class OrderController {
                     .json(HttpResponse.result('Update status order fail', HttpStatus.BAD_REQUEST));
             }
             return res.status(HttpStatus.OK).json(HttpResponse.result('Update status order', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Post('create')
+    async createOrderWithProducts(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { user, address, shop, products, gift } = req.body;
+            const response = await this.orderService.createOrder({ user, address, products, shop, gifts: gift || -1 });
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Create order', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

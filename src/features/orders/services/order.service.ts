@@ -238,4 +238,8 @@ export class OrderService {
         order.updatedAt = new Date();
         return await this.orderRepository.save(order);
     }
+
+    async updateProductOfOrder({ product, order, shop, type, count }): Promise<any> {
+        console.log({ product, order, shop, type });
+    }
 }

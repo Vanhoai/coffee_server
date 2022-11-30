@@ -33,9 +33,13 @@ export const getConfig = () => {
             CUSTOMER: 'CUSTOMER',
         },
         TYPE_ACCOUNT: {
-            GOOGLE: 'GOOGLE',
-            FACEBOOK: 'FACEBOOK',
-            EMAIL: 'EMAIL',
+            GOOGLE: 0,
+            FACEBOOK: 1,
+            EMAIL: 2,
+        },
+        TYPE_UPDATE_ORDER: {
+            ADD_PRODUCT: 0,
+            REMOVE_PRODUCT: 1,
         },
     };
 
