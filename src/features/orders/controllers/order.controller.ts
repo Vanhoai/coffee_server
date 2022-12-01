@@ -9,12 +9,7 @@ export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
     @Get('')
-    async getAllOrder(
-        @Req() req: Request,
-        @Res() res: Response,
-        @Next() next: NextFunction,
-        @Body() order: CreateOrderParams,
-    ): Promise<any> {
+    async getAllOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const response = await this.orderService.getAllOrder();
             if (!response) {
@@ -89,8 +84,15 @@ export class OrderController {
     @Put('update')
     async updateOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { shop, product, order, type, count } = req.body;
-            const response = await this.orderService.updateProductOfOrder({ shop, product, order, type, count });
+            const { shop, product, order, count, address, user } = req.body;
+            const response = await this.orderService.updateProductOfOrder({
+                shop,
+                product,
+                order: order || -1,
+                count,
+                address,
+                user,
+            });
             if (!response) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)
@@ -127,8 +129,8 @@ export class OrderController {
     @Post('create')
     async createOrderWithProducts(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
-            const { user, address, shop, products, gift } = req.body;
-            const response = await this.orderService.createOrder({ user, address, products, shop, gifts: gift || -1 });
+            const { user, address, shop } = req.body;
+            const response = await this.orderService.newOrder({ user, address, shop });
             return res.status(HttpStatus.OK).json(HttpResponse.result('Create order', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);

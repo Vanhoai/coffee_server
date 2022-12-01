@@ -15,6 +15,9 @@ export class OrderEntity {
     @Column({ type: 'int' })
     status: number;
 
+    @Column({ type: 'int' })
+    shop: number;
+
     @Column({ type: 'float' })
     total: number;
 
