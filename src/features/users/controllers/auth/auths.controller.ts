@@ -9,6 +9,25 @@ import { JWTPayload } from 'src/core/interfaces/JWTPayload';
 export class AuthController {
     constructor(private readonly authService: AuthService, private readonly JWT: TokenService) {}
 
+    @Post('send')
+    async sendMail(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { email } = req.body;
+            if (!email) return res.status(400).json(HttpResponse.result('Bad Request', 400, {}));
+            const response = await this.authService.sendMail({ email });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Send mail successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Post('register')
     async register(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {

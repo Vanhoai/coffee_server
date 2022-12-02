@@ -94,53 +94,6 @@ export class HistoryService {
         return await this.historyRepository.remove(history);
     }
 
-    async filterData(histories: HistoryEntity[]): Promise<any> {
-        return histories.map((history) => {
-            const { id, createdAt, updatedAt, deletedAt, user: userEntity, order } = history;
-
-            const {
-                createdAt: createdAtUser,
-                updatedAt: updatedAtUser,
-                deletedAt: deletedAtUser,
-                ...userResponse
-            } = userEntity;
-            const {
-                createdAt: createdAtOrder,
-                updatedAt: updatedAtOrder,
-                deletedAt: deletedAtOrder,
-                shop,
-                products,
-                ...orderEntity
-            } = order;
-            return {
-                id,
-                updatedAt,
-                user: userResponse,
-                order: {
-                    ...orderEntity,
-                    shop,
-                    products: products.map((item) => {
-                        const { createdAt, updatedAt, deletedAt, product, ...productResponse } = item;
-                        const {
-                            createdAt: createdAtProduct,
-                            updatedAt: updatedAtProduct,
-                            deletedAt: deletedAtProduct,
-                            image,
-                            ...productEntity
-                        } = product;
-                        return {
-                            ...productResponse,
-                            product: {
-                                ...productEntity,
-                                image: image ? image.url : null,
-                            },
-                        };
-                    }),
-                },
-            };
-        });
-    }
-
     async getAllHistoryByUserId(id: number): Promise<any> {
         const user: UserEntity = await this.userService.getUserById(id);
         if (!user) {

@@ -16,12 +16,14 @@ export class MailService {
         subject: string;
         content: string;
     }): Promise<any> {
-        await this.mailerService.sendMail({
+        const response = await this.mailerService.sendMail({
             to,
             from,
             subject,
             text: content,
             html: '<b>Welcome</b>',
         });
+
+        return response;
     }
 }

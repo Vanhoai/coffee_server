@@ -189,4 +189,15 @@ export class AuthService {
 
         return user;
     }
+
+    async sendMail({ email }): Promise<any> {
+        const response = await this.mailService.sendMail({
+            from: 'tvhoai241223@gmail.com',
+            to: email,
+            content: 'Reset Password Successfully !',
+            subject: 'Reset Password',
+        });
+
+        return response;
+    }
 }
