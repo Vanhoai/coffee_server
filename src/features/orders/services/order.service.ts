@@ -66,6 +66,12 @@ export class OrderService {
         userEntity.orders = [...userEntity.orders, order];
         await this.userRepository.save(userEntity);
 
+        // create history
+        await this.historyService.createHistory({
+            userId: order.user.id,
+            orderId: order.id,
+        });
+
         const { products, shop: shopResponse, user: userResponse, ...rest } = response;
         return rest;
     }
@@ -76,11 +82,62 @@ export class OrderService {
         });
     }
 
-    async getOrderById(id: number): Promise<OrderEntity> {
+    async getOrderById(id: number): Promise<any> {
         return await this.orderRepository.findOne({
             where: { id, deletedAt: false },
-            relations: ['user', 'products', 'products.product'],
+            relations: ['user', 'products', 'products.product', 'products.product.image'],
         });
+    }
+
+    async detailOrder(id: number): Promise<any> {
+        const response: OrderEntity = await this.orderRepository.findOne({
+            where: { id, deletedAt: false },
+            relations: ['user', 'products', 'products.product', 'products.product.image'],
+        });
+
+        const { createdAt, updatedAt, deletedAt, products, shop, user, ...rest } = response;
+        const shopEntity = await this.shopService.getShopById(shop);
+        const {
+            password,
+            createdAt: createdAtUser,
+            updatedAt: updatedAtUser,
+            deletedAt: deletedAtUser,
+            ...userRest
+        } = user;
+
+        const {
+            createdAt: createdAtShop,
+            updatedAt: updatedAtShop,
+            deletedAt: deletedAtShop,
+            products: productsShop,
+            ...restShop
+        } = shopEntity;
+
+        return {
+            ...rest,
+            shop: {
+                ...restShop,
+            },
+            user: userRest,
+            products: products.map((item) => {
+                const { createdAt, updatedAt, deletedAt, product, ...rest } = item;
+                const {
+                    createdAt: createdAtProduct,
+                    updatedAt: updatedAtProduct,
+                    deletedAt: deletedAtProduct,
+                    image,
+                    ...productRest
+                } = product;
+
+                return {
+                    ...rest,
+                    product: {
+                        ...productRest,
+                        image: image ? image.url : null,
+                    },
+                };
+            }),
+        };
     }
 
     async updateOrder(id: number, status: number): Promise<OrderEntity> {
@@ -107,7 +164,7 @@ export class OrderService {
         return await this.orderRepository.save(order);
     }
 
-    async removeOrder(id: number): Promise<OrderEntity> {
+    async removeOrder(id: number): Promise<any> {
         const order = await this.getOrderById(id);
         if (!order) {
             throw new Error('Order not found');
@@ -203,12 +260,6 @@ export class OrderService {
         // if order delivered
         // status == 3
         if (status === getConfig().ORDER_STATUS.DELIVERED) {
-            // create history
-            await this.historyService.createHistory({
-                userId: order.user.id,
-                orderId: order.id,
-            });
-
             // delete order from user
             const userEntity = await this.userRepository.findOne({
                 where: { id: order.user.id },
@@ -245,7 +296,17 @@ export class OrderService {
         return await this.orderRepository.save(order);
     }
 
-    async addProductOrder({ product, order, shop, count }): Promise<any> {
+    async addProductOrder({
+        product,
+        order,
+        shop,
+        count,
+    }: {
+        product: number;
+        order: number;
+        shop: number;
+        count: number;
+    }): Promise<any> {
         const orderEntity: OrderEntity = await this.getOrderById(order);
         const productEntity: ProductEntity = await this.productService.findProductById(product);
         const shopProductEntity: ShopProductEntity = await this.shopProductRepository
@@ -293,17 +354,24 @@ export class OrderService {
                 orderEntity.total -= orderToProductEntity.total;
                 await this.orderRepository.save(orderEntity);
                 const response = await this.getOrderById(order);
-                const { products, ...rest } = response;
+                const { products, shop, ...rest } = response;
+                const shopEntity = await this.shopService.getShopById(shop);
+                const { products: productsShop, createdAt, updatedAt, deletedAt, ...restShop } = shopEntity;
                 return {
                     ...rest,
+                    shop: {
+                        ...restShop,
+                    },
                     products: products.map((item) => {
                         const { order, product, ...rest } = item;
+                        const { comments, orders, shops, image, createdAt, updatedAt, deletedAt, ...restProduct } =
+                            product;
                         return {
                             ...rest,
-                            products: products.map((item) => {
-                                const { order, product, ...rest } = item;
-                                return rest;
-                            }),
+                            product: {
+                                ...restProduct,
+                                image: image ? image.url : null,
+                            },
                         };
                     }),
                 };
@@ -313,16 +381,24 @@ export class OrderService {
             orderToProductEntity.total += productEntity.price * count;
             await this.orderToProductRepository.save(orderToProductEntity);
             await this.orderRepository.save(orderEntity);
-            const response = await this.getOrderById(order);
-            const { products, ...rest } = response;
+            const response: OrderEntity = await this.getOrderById(order);
+            const { products, shop, ...rest } = response;
+            const shopEntity = await this.shopService.getShopById(shop);
+            const { products: productsShop, createdAt, updatedAt, deletedAt, ...restShop } = shopEntity;
             return {
                 ...rest,
+                shop: {
+                    ...restShop,
+                },
                 products: products.map((item) => {
                     const { order, product, ...rest } = item;
-                    const { comments, orders, shops, ...restProduct } = product;
+                    const { comments, orders, shops, image, createdAt, updatedAt, deletedAt, ...restProduct } = product;
                     return {
                         ...rest,
-                        product: restProduct,
+                        product: {
+                            ...restProduct,
+                            image: image ? image.url : null,
+                        },
                     };
                 }),
             };
@@ -347,12 +423,24 @@ export class OrderService {
         productEntity.explored += count;
         await this.productRepository.save(productEntity);
 
-        const { products, ...rest } = response;
+        const { products, shop: shopId, ...rest } = response;
+        const shopEntity = await this.shopService.getShopById(shopId);
+        const { products: productsShop, createdAt, updatedAt, deletedAt, ...restShop } = shopEntity;
         return {
             ...rest,
+            shop: {
+                ...restShop,
+            },
             products: products.map((item) => {
                 const { order, product, ...rest } = item;
-                return rest;
+                const { comments, orders, shops, image, createdAt, updatedAt, deletedAt, ...restProduct } = product;
+                return {
+                    ...rest,
+                    product: {
+                        ...restProduct,
+                        image: image ? image.url : null,
+                    },
+                };
             }),
         };
     }
@@ -366,5 +454,26 @@ export class OrderService {
         const orderResponse = await this.newOrder({ user, address, shop });
         const response = await this.addProductOrder({ product, order: orderResponse.id, shop, count });
         return response;
+    }
+
+    async deleteOrderOfUser(id: number): Promise<any> {
+        const orderEntity: OrderEntity = await this.getOrderById(id);
+        const userEntity: UserEntity = await this.userService.getUserById(orderEntity.user.id);
+
+        if (!orderEntity || !userEntity) {
+            return {
+                message: 'Order or User not found',
+                error: true,
+            };
+        }
+
+        const orderResponse: OrderEntity = await this.orderRepository.remove(orderEntity);
+
+        userEntity.orders = userEntity.orders.filter((item) => {
+            return item.id !== orderEntity.id;
+        });
+        await this.userRepository.save(userEntity);
+
+        return orderResponse;
     }
 }

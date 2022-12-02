@@ -8,6 +8,22 @@ import { OrderService } from '../services/order.service';
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
+    @Get('detail/:id')
+    async getOrderDetail(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.orderService.detailOrder(+id);
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Get order detail fail', HttpStatus.BAD_REQUEST));
+            }
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Get order detail', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Get('')
     async getAllOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
@@ -65,6 +81,22 @@ export class OrderController {
         }
     }
 
+    @Delete('delete/:id')
+    async deleteOrderOfUser(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.orderService.deleteOrderOfUser(+id);
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Delete order of user fail', HttpStatus.BAD_REQUEST));
+            }
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Delete order of user', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Delete(':id')
     async deleteOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
@@ -89,7 +121,7 @@ export class OrderController {
                 shop,
                 product,
                 order: order || -1,
-                count,
+                count: +count,
                 address,
                 user,
             });

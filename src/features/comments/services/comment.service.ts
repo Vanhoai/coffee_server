@@ -60,12 +60,20 @@ export class CommentService {
         comment.createdAt = new Date();
         comment.updatedAt = new Date();
         comment.deletedAt = false;
-        await this.commentRepository.save(comment);
+        const response = await this.commentRepository.save(comment);
 
         product.comments.push(comment);
         await this.calculateRating(productId);
 
-        return {};
+        const { product: productResponse, user: userResponse, ...rest } = response;
+        const { password, image, ...restUser } = userResponse;
+        return {
+            ...rest,
+            user: {
+                ...restUser,
+                image: image ? image.url : null,
+            },
+        };
     }
 
     async calculateRating(id: number): Promise<any> {
