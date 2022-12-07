@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Next, Post, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Next, Patch, Post, Put, Req, Res } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { HttpResponse } from 'src/utils/HttpResponse';
 import { CreateOrderParams } from '../interfaces/CreateOrderParams';
@@ -136,17 +136,33 @@ export class OrderController {
         }
     }
 
+    @Patch(':id')
+    async cancelOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.orderService.cancelOrder(+id);
+            if (!response) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Cancel order fail', HttpStatus.BAD_REQUEST));
+            }
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Cancel order', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Put(':id')
     async updateStatusOrder(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {
             const { id } = req.params;
-            const { status } = req.body;
+            const { status, balance } = req.body;
             if (!status) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)
                     .json(HttpResponse.result('Missing params', HttpStatus.BAD_REQUEST));
             }
-            const response = await this.orderService.updateStatusOrder({ id: +id, status });
+            const response = await this.orderService.updateStatusOrder({ id: +id, status, balance: +balance });
             if (!response) {
                 return res
                     .status(HttpStatus.BAD_REQUEST)

@@ -42,6 +42,7 @@ export class UserService {
             .leftJoinAndSelect('user.gifts', 'gift')
             .leftJoinAndSelect('gift.type', 'type')
             .leftJoinAndSelect('user.orders', 'order')
+            .leftJoinAndSelect('user.missionUsers', 'missionUser')
             .leftJoinAndSelect('user.histories', 'history')
             .leftJoinAndSelect('user.favoriteProducts', 'favoriteProduct')
             .where('user.id = :id', { id })

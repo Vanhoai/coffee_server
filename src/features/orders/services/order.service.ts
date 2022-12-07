@@ -248,13 +248,17 @@ export class OrderService {
         };
     }
 
-    async updateStatusOrder({ id, status }): Promise<any> {
+    async updateStatusOrder({ id, status, balance }): Promise<any> {
         const order = await this.getOrderById(id);
         if (!order) {
             return {
                 message: 'Order not found',
                 error: true,
             };
+        }
+
+        if (balance) {
+            order.total += balance;
         }
 
         // if order delivered
@@ -265,6 +269,20 @@ export class OrderService {
                 where: { id: order.user.id },
                 relations: ['orders', 'balance'],
             });
+
+            if (!userEntity) {
+                return {
+                    message: 'User not found',
+                    error: true,
+                };
+            }
+
+            if (userEntity.balance.amount < order.total) {
+                return {
+                    message: 'Not enough money',
+                    error: true,
+                };
+            }
 
             order.deletedAt = true;
             order.updatedAt = new Date();
@@ -286,14 +304,52 @@ export class OrderService {
             balanceEntity.amount -= order.total;
             await this.balanceRepository.save(balanceEntity);
 
+            const shopEntity: ShopEntity = await this.shopService.getShopById(order.shop.id);
+            const { image, products, ...restShop } = shopEntity;
+
+            const response: OrderEntity = await this.getOrderById(order.id);
+            const { shop, ...rest } = response;
+
             return {
-                message: 'Order delivered',
+                ...rest,
+                shop: restShop,
+                products: products.map((item) => {
+                    const { product, ...rest } = item;
+                    const { image, ...restProduct } = product;
+                    return {
+                        ...rest,
+                        product: {
+                            ...restProduct,
+                            image: image ? image.url : null,
+                        },
+                    };
+                }),
             };
         }
 
         order.status = status;
         order.updatedAt = new Date();
-        return await this.orderRepository.save(order);
+
+        const shopEntity: ShopEntity = await this.shopService.getShopById(order.shop.id);
+        const { image, products: productShop, ...restShop } = shopEntity;
+
+        const response: OrderEntity = await this.orderRepository.save(order);
+        const { shop, products, ...rest } = response;
+        return {
+            ...rest,
+            shop: restShop,
+            products: products.map((item) => {
+                const { product, ...rest } = item;
+                const { image, ...restProduct } = product;
+                return {
+                    ...rest,
+                    product: {
+                        ...restProduct,
+                        image: image ? image.url : null,
+                    },
+                };
+            }),
+        };
     }
 
     async addProductOrder({
@@ -475,5 +531,46 @@ export class OrderService {
         await this.userRepository.save(userEntity);
 
         return orderResponse;
+    }
+
+    async cancelOrder(id: number): Promise<any> {
+        const orderEntity: OrderEntity = await this.orderRepository.findOne({
+            where: { id },
+            relations: ['user'],
+        });
+
+        if (!orderEntity) {
+            return {
+                message: 'Order not found',
+                error: true,
+            };
+        }
+
+        const {
+            user: { id: userId },
+        } = orderEntity;
+
+        const userEntity: UserEntity = await this.userService.getUserById(userId);
+
+        if (!userEntity) {
+            return {
+                message: 'User not found',
+                error: true,
+            };
+        }
+
+        // remove order from user
+        userEntity.orders = userEntity.orders.filter((item) => {
+            return item.id !== orderEntity.id;
+        });
+
+        await this.userRepository.save(userEntity);
+
+        orderEntity.deletedAt = true;
+        orderEntity.updatedAt = new Date();
+
+        await this.orderRepository.save(orderEntity);
+        const response = await this.historyService.getAllHistoryByUserId(userId);
+        return response;
     }
 }

@@ -1,6 +1,7 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftService } from 'src/features/gifts/services/gift.service';
+import { UserEntity } from 'src/features/users/entities/user.entity';
 import { UserService } from 'src/features/users/services/users.service';
 import { GenerateFunction } from 'src/utils/GenerateFunction';
 import { Repository } from 'typeorm';
@@ -86,8 +87,8 @@ export class MissionService {
     }
 
     async registerMissionUser({ userId, missionId }: { userId: number; missionId: number }): Promise<any> {
-        const userEntity = await this.userService.getUserById(userId);
-        const missionEntity = await this.getMissionById(missionId);
+        const userEntity: UserEntity = await this.userService.getUserById(userId);
+        const missionEntity: MissionEntity = await this.getMissionById(missionId);
 
         if (!userEntity) {
             return {
@@ -110,6 +111,8 @@ export class MissionService {
         missionUser.createdAt = new Date();
         missionUser.updatedAt = new Date();
         missionUser.deletedAt = false;
+
+        await this.missionUserRepository.save(missionUser);
 
         userEntity.missionUsers.push(missionUser);
         missionEntity.missionUsers.push(missionUser);

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ImageEntity } from 'src/features/images/image.entity';
 import { ImageService } from 'src/features/images/image.service';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from '../dtos/CreateProduct.dto';
@@ -89,17 +90,16 @@ export class ProductService {
         id: number,
         { name, price, description, quantity, image }: UpdateProductDto,
     ): Promise<ProductEntity> {
-        const product = await this.productRepository.findOne({
+        const product: ProductEntity = await this.productRepository.findOne({
             where: { id, deletedAt: false },
             relations: ['image'],
         });
 
-        const { image: oldImage } = product;
-        if (oldImage) {
-            await this.imageService.deleteImage(oldImage.id);
-        }
+        const {
+            image: { id: imageId },
+        } = product;
 
-        const newImage = await this.imageService.createImage(image, 'products');
+        const newImage: ImageEntity = await this.imageService.changeImage(imageId, image, 'products');
 
         product.name = name;
         product.description = description;
