@@ -4,7 +4,7 @@ import { UserEntity } from '../users/entities/user.entity';
 
 @Entity({ name: 'comments' })
 export class CommentEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
     @ManyToOne(() => UserEntity, (user) => user.id)
@@ -13,10 +13,10 @@ export class CommentEntity {
     @ManyToOne(() => ProductEntity, (product) => product.comments)
     product?: ProductEntity;
 
-    @Column()
+    @Column({ type: 'float' })
     rating?: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 2000 })
     content?: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -5,25 +5,25 @@ export class ImageEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     url?: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     publicId?: string;
 
-    @Column()
+    @Column({ type: 'float' })
     width?: number;
 
-    @Column()
+    @Column({ type: 'float' })
     height?: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     format?: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     signature?: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     secureUrl?: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

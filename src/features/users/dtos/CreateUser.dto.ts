@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class CreateUserDto {
     @IsNotEmpty()
@@ -15,4 +16,7 @@ export class CreateUserDto {
     @IsNotEmpty()
     @Expose()
     password: string;
+
+    @IsNotEmpty()
+    phone: string;
 }

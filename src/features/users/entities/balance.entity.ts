@@ -2,12 +2,12 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('balances')
 export class BalanceEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     code: string;
 
-    @Column()
+    @Column({ type: 'float' })
     amount: number;
 }

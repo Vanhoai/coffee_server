@@ -14,6 +14,11 @@ import { ProductModule } from './features/products/products.module';
 import { PublicRoutes } from './features/public/public.module';
 import { ShopModule } from './features/shops/shops.module';
 import { UserModule } from './features/users/users.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { FirebaseAdminModule } from '@aginix/nestjs-firebase-admin';
+import admin, { ServiceAccount } from 'firebase-admin';
+import credentials from '../google-services.json';
 
 const imports = getConfig().LOCAL
     ? [
@@ -40,6 +45,35 @@ const imports = getConfig().LOCAL
           CommentModule,
           OrderModule,
           PublicRoutes,
+          MailerModule.forRootAsync({
+              useFactory: () => ({
+                  transport: {
+                      host: getConfig().HOST_EMAIL,
+                      port: 587,
+                      secure: false,
+                      pool: true,
+                      auth: {
+                          user: getConfig().USER_EMAIL,
+                          pass: getConfig().PASSWORD_EMAIL,
+                      },
+                  },
+                  defaults: {
+                      from: '"nest-modules" <modules@nestjs.com>',
+                  },
+                  template: {
+                      dir: process.cwd() + '/templates/',
+                      adapter: new HandlebarsAdapter(),
+                      options: {
+                          strict: true,
+                      },
+                  },
+              }),
+          }),
+          FirebaseAdminModule.forRootAsync({
+              useFactory: () => ({
+                  credential: admin.credential.cert(credentials as ServiceAccount),
+              }),
+          }),
       ]
     : [
           ConfigModule.forRoot({ isGlobal: true }),
@@ -64,7 +98,7 @@ const imports = getConfig().LOCAL
       ];
 
 @Module({
-    imports,
+    imports: imports,
     controllers: [],
     providers: [],
     exports: [],

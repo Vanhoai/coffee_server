@@ -1,22 +1,27 @@
+import { GiftEntity } from 'src/features/gifts/entities/gift.entity';
+import { ShopEntity } from 'src/features/shops/entities/shop.entity';
 import { UserEntity } from 'src/features/users/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { OrderToProductEntity } from './order-product.entity';
 
 @Entity({ name: 'orders' })
 export class OrderEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
     @ManyToOne(() => UserEntity, (user) => user.orders)
     user: UserEntity;
 
-    @Column()
+    @Column({ type: 'int' })
     status: number;
 
-    @Column()
+    @Column({ type: 'int' })
+    shop: number;
+
+    @Column({ type: 'float' })
     total: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     address: string;
 
     @OneToMany(() => OrderToProductEntity, (orderToProduct) => orderToProduct.order)

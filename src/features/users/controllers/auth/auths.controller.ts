@@ -9,11 +9,30 @@ import { JWTPayload } from 'src/core/interfaces/JWTPayload';
 export class AuthController {
     constructor(private readonly authService: AuthService, private readonly JWT: TokenService) {}
 
+    @Post('send-code')
+    async sendMail(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { email, code } = req.body;
+            if (!email) return res.status(400).json(HttpResponse.result('Bad Request', 400, {}));
+            const response = await this.authService.sendMail({ email, code });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Send mail successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Post('register')
     async register(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
-            const user = await this.authService.register({ username, email, password });
+            const { username, email, password, phone } = req.body;
+            const user = await this.authService.register({ username, email, password, phone });
             if (!user) return res.status(409).json(HttpResponse.result('Conflict', 409, {}));
             return res.status(HttpStatus.OK).json(HttpResponse.result('User Register Successfully', 200, user));
         } catch (error: any) {
@@ -24,8 +43,8 @@ export class AuthController {
     @Post('admin')
     async createAdmin(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction) {
         try {
-            const { username, email, password } = req.body;
-            const user = await this.authService.createAdmin({ username, email, password });
+            const { username, email, password, phone } = req.body;
+            const user = await this.authService.createAdmin({ username, email, password, phone });
             if (!user) return res.status(409).json({ message: 'Conflict' });
             return res.status(HttpStatus.OK).json(HttpResponse.result('Admin Register Successfully', 200, user));
         } catch (error: any) {
@@ -74,6 +93,25 @@ export class AuthController {
             };
 
             return res.status(HttpStatus.OK).json(HttpResponse.result('User Refresh Successfully', 200, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Post('reset')
+    async resetPassword(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { email, password } = req.body;
+            if (!email || !password) return res.status(400).json(HttpResponse.result('Bad Request', 400, {}));
+            const response = await this.authService.resetPassword({ email, password });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Reset password successfully', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

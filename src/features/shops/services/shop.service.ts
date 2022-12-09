@@ -34,19 +34,48 @@ export class ShopService {
         return result;
     }
 
-    async getShopById(id: number): Promise<ShopEntity> {
+    async findById(id: number): Promise<ShopEntity> {
+        return await this.shopRepository.findOne({
+            where: { id },
+            relations: ['image', 'products', 'products.product', 'products.product.image'],
+        });
+    }
+
+    async getShopById(id: number): Promise<any> {
         const shop: ShopEntity = await this.shopRepository.findOne({
             where: { id },
-            relations: ['image', 'products', 'products.product'],
+            relations: ['image', 'products', 'products.product', 'products.product.image'],
         });
         if (!shop) {
-            throw new BadRequestException('Shop not found');
+            return {};
         }
-        return shop;
+        const { image, products, createdAt, updatedAt, deletedAt, ...restShop } = shop;
+
+        return {
+            ...restShop,
+            image: image.url,
+            products: products.map((product) => {
+                const { product: productDetail, createdAt, updatedAt, deletedAt, ...restProduct } = product;
+                const {
+                    image: productImage,
+                    createdAt: productCreatedAt,
+                    updatedAt: productUpdatedAt,
+                    deletedAt: productDeletedAt,
+                    ...restProductDetail
+                } = productDetail;
+                return {
+                    ...restProduct,
+                    product: {
+                        ...restProductDetail,
+                        image: productImage.url,
+                    },
+                };
+            }),
+        };
     }
 
     async createShop({ location, description, longitude, latitude, file }: CreateShopDto): Promise<ShopEntity> {
-        const image = await this.imageService.createImage(file);
+        const image = await this.imageService.createImage(file, 'shops');
         const shop = new ShopEntity();
         shop.location = location;
         shop.description = description;
@@ -67,7 +96,7 @@ export class ShopService {
             image: { id: imageId },
         } = shop;
         const { file, ...params } = shopUpdate;
-        const image = await this.imageService.changeImage(imageId, file);
+        const image = await this.imageService.changeImage(imageId, file, 'shops');
         const updatedShop = await this.shopRepository.save({ ...shop, ...params, image, updatedAt: new Date() });
         return updatedShop;
     }
@@ -83,13 +112,14 @@ export class ShopService {
         return await this.shopRepository.save(shop);
     }
 
-    async removeShop(id: number): Promise<ShopEntity> {
+    async removeShop(id: number): Promise<any> {
         const shop = await this.getShopById(id);
         if (!shop) return null;
         const {
             image: { id: imageId },
         } = shop;
+        const shopDelete = await this.shopRepository.remove(shop);
         await this.imageService.deleteImage(imageId);
-        return await this.shopRepository.remove(shop);
+        return shopDelete;
     }
 }

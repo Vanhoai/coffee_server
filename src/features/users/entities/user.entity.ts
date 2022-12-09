@@ -1,9 +1,10 @@
-import { IsEmail, Length, MinLength } from 'class-validator';
 import { getConfig } from 'src/config';
 import { GiftEntity } from 'src/features/gifts/entities/gift.entity';
 import { HistoryEntity } from 'src/features/histories/entities/history.entity';
 import { ImageEntity } from 'src/features/images/image.entity';
+import { MissionUserEntity } from 'src/features/missions/entities/mission-user.entity';
 import { OrderEntity } from 'src/features/orders/entities/order.entity';
+import { ProductEntity } from 'src/features/products/entities/product.entity';
 import { ShopEntity } from 'src/features/shops/entities/shop.entity';
 import {
     Column,
@@ -19,19 +20,19 @@ import { BalanceEntity } from './balance.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
-    @MinLength(10)
+    @Column({ type: 'varchar', length: 255 })
     username?: string;
 
-    @Column()
-    @IsEmail()
+    @Column({ type: 'varchar', length: 255 })
     email?: string;
 
-    @Column()
-    @MinLength(4)
+    @Column({ type: 'varchar', length: 255 })
+    phone?: string;
+
+    @Column({ type: 'varchar', length: 255 })
     password?: string;
 
     @OneToOne(() => ImageEntity, (image) => image.id)
@@ -51,12 +52,22 @@ export class UserEntity {
     @JoinColumn()
     balance?: BalanceEntity;
 
-    @Column({ default: 0 })
+    @Column({ default: 0, type: 'float' })
     exp?: number;
+
+    @Column({ type: 'varchar', length: 500 })
+    deviceToken?: string;
 
     @ManyToMany(() => ShopEntity)
     @JoinTable()
     favoriteShops?: ShopEntity[];
+
+    @ManyToMany(() => ProductEntity)
+    @JoinTable()
+    favoriteProducts?: ProductEntity[];
+
+    @OneToMany(() => MissionUserEntity, (missionUser) => missionUser.user)
+    missionUsers?: MissionUserEntity[];
 
     @ManyToMany(() => GiftEntity)
     @JoinTable()

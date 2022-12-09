@@ -21,7 +21,7 @@ export class ShopProductService {
         private readonly productService: ProductService,
     ) {}
 
-    async getAllProductFromShop(id: number): Promise<ShopProductEntity> {
+    async getProductFromShop(id: number): Promise<ShopProductEntity> {
         const shop = await this.shopProductRepository.findOne({
             where: { id },
             relations: ['shops', 'products'],
@@ -30,22 +30,50 @@ export class ShopProductService {
         return shop;
     }
 
+    async getShopProductById(id: number): Promise<ShopProductEntity> {
+        const shopProduct = await this.shopProductRepository.findOne({
+            where: { id },
+            relations: ['shop', 'product'],
+        });
+        if (!shopProduct) return null;
+        return shopProduct;
+    }
+
     async addProductToShop({ shop, product, quantity }: AddProductToShopDto): Promise<any> {
-        const shopEntity: ShopEntity = await this.shopService.getShopById(shop);
-        const productEntity: ProductEntity = await this.productService.findProductById(product);
-        if (!shopEntity || !productEntity) return null;
+        const shopEntity = await this.shopService.findById(+shop);
+        const productEntity = await this.productService.findProductById(+product);
+        if (!shopEntity || !productEntity)
+            return {
+                message: 'Shop or product not found',
+            };
+        if (quantity > productEntity.quantity)
+            return {
+                message: 'Quantity is greater than product quantity',
+            };
+
+        const shopProduct = await this.shopProductRepository
+            .createQueryBuilder('shopProduct')
+            .where('shopProduct.shopId = :shopId', { shopId: +shop })
+            .andWhere('shopProduct.productId = :productId', { productId: +product })
+            .getOne();
 
         productEntity.quantity -= quantity;
+        await this.productRepository.save(productEntity);
+        if (shopProduct) {
+            shopProduct.quantity += quantity;
+            await this.shopProductRepository.save(shopProduct);
+            return {
+                message: 'Update shop product successfully',
+            };
+        }
 
-        const shopProduct = new ShopProductEntity();
-        shopProduct.shop = shopEntity;
-        shopProduct.product = productEntity;
-        shopProduct.quantity = quantity;
-        shopProduct.createdAt = new Date();
-        shopProduct.updatedAt = new Date();
-        shopProduct.deletedAt = false;
-
-        await this.shopProductRepository.save(shopProduct);
+        const newShopProduct = new ShopProductEntity();
+        newShopProduct.shop = shopEntity;
+        newShopProduct.product = productEntity;
+        newShopProduct.quantity = quantity;
+        newShopProduct.createdAt = new Date();
+        newShopProduct.updatedAt = new Date();
+        newShopProduct.deletedAt = false;
 
         shopEntity.products.push(shopProduct);
         productEntity.shops.push(shopProduct);
@@ -53,7 +81,11 @@ export class ShopProductService {
         await this.shopRepository.save(shopEntity);
         await this.productRepository.save(productEntity);
 
-        return shopProduct;
+        await this.shopProductRepository.save(newShopProduct);
+
+        return this.shopProductRepository.findOne({
+            where: { id: newShopProduct.id },
+        });
     }
 
     async getAllShopProduct(): Promise<any> {
@@ -67,5 +99,11 @@ export class ShopProductService {
             count,
             shopProduct: shopProducts.filter((shopProduct) => !shopProduct.deletedAt),
         };
+    }
+
+    async getAll(): Promise<ShopProductEntity[]> {
+        return await this.shopProductRepository.find({
+            relations: ['shop', 'product'],
+        });
     }
 }

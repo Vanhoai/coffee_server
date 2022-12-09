@@ -12,11 +12,13 @@ import { ShopProductService } from './services/shop-product.service';
 import { ProductService } from '../products/services/product.service';
 import { ProductController } from '../products/controllers/product.controller';
 import { ProductEntity } from '../products/entities/product.entity';
+import { ShopsController } from './controllers/shops.controller';
+import { ShopsService } from './services/shops.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([ShopEntity, ImageEntity, ShopProductEntity, ProductEntity])],
-    controllers: [ShopController, ShopProductController, ProductController],
-    providers: [ShopService, ImageService, CloudinaryService, ShopProductService, ProductService],
+    controllers: [ShopController, ShopProductController, ProductController, ShopsController],
+    providers: [ShopService, ImageService, CloudinaryService, ShopProductService, ProductService, ShopsService],
     exports: [],
 })
 export class ShopModule {}

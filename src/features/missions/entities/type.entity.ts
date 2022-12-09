@@ -4,10 +4,10 @@ import { MissionEntity } from './mission.entity';
 
 @Entity({ name: 'types' })
 export class TypeEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int' })
     id: number;
 
-    @Column()
+    @Column({ type: 'float' })
     percent: number;
 
     @OneToMany(() => MissionEntity, (mission) => mission.type)

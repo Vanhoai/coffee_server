@@ -18,7 +18,7 @@ import { CreateProductParams } from '../interfaces/CreateProductParams';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateProductParams } from '../interfaces/UpdateProductParams';
 
-@Controller('products')
+@Controller('product')
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
 
@@ -55,6 +55,36 @@ export class ProductController {
         try {
             const response = await this.productService.createProduct({ ...body, image: file });
             return res.status(HttpStatus.OK).json(HttpResponse.result('Create product successfully', 200, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Post('create-no-image')
+    async createProductNoImage(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { name, price, description, quantity } = req.body;
+            const response = await this.productService.createProductNoImage({ name, price, description, quantity });
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Create product successfully', 200, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Put('create-no-image/:id')
+    @UseInterceptors(FileInterceptor('image'))
+    async uploadImageForProduct(
+        @Req() req: Request,
+        @Res() res: Response,
+        @Next() next: NextFunction,
+        @UploadedFile() file: Express.Multer.File,
+    ): Promise<any> {
+        try {
+            const { id } = req.params;
+            const response = await this.productService.uploadImageForProductNoImage(parseInt(id), file);
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Upload image for product successfully', 200, response));
         } catch (error: any) {
             next(error);
         }

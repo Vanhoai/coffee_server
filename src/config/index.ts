@@ -1,5 +1,5 @@
 export const getConfig = () => {
-    const DEBUG = false;
+    const DEBUG = true;
 
     const config = {
         LOCAL: DEBUG,
@@ -19,20 +19,27 @@ export const getConfig = () => {
         CLOUD_NAME: 'dyhzak5ed',
         API_KEY: '667478132612627',
         API_SECRET: '6wCTl19e57JKU6a4YebhTqt7cC8',
+        USER_EMAIL: 'tvhoai241223@gmail.com',
+        PASSWORD_EMAIL: 'obcgyhgmvkunuufh',
+        HOST_EMAIL: 'smtp.gmail.com',
         ORDER_STATUS: {
-            CREATED: 'CREATED',
-            PAID: 'PAID',
-            DELIVERING: 'DELIVERING',
-            DELIVERED: 'DELIVERED',
+            CREATED: 0,
+            PAID: 1,
+            DELIVERING: 2,
+            DELIVERED: 3,
         },
         ROLE: {
             ADMIN: 'ADMIN',
             CUSTOMER: 'CUSTOMER',
         },
         TYPE_ACCOUNT: {
-            GOOGLE: 'GOOGLE',
-            FACEBOOK: 'FACEBOOK',
-            EMAIL: 'EMAIL',
+            GOOGLE: 0,
+            FACEBOOK: 1,
+            EMAIL: 2,
+        },
+        TYPE_UPDATE_ORDER: {
+            ADD_PRODUCT: 0,
+            REMOVE_PRODUCT: 1,
         },
     };
 
