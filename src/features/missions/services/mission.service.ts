@@ -259,13 +259,14 @@ export class MissionService {
 
         const missionUser = userEntity.missionUsers[0];
 
+        if (!missionUser) {
+            return;
+        }
+
         const missionUserEntity = await this.getMissionUser(missionUser.id);
 
         if (!missionUserEntity) {
-            return {
-                message: 'Mission user not found',
-                error: true,
-            };
+            return;
         }
 
         missionUserEntity.current += current;
