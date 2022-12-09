@@ -21,7 +21,7 @@ export class MailService {
             from,
             subject,
             text: content,
-            html: '<b>Welcome</b>',
+            html: `<b>${content}</b>`,
         });
 
         return response;

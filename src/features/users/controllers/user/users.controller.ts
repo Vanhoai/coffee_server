@@ -38,6 +38,24 @@ export class UserController {
         }
     }
 
+    @Get('balance/:id')
+    async getBalanceOfUser(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const balance = await this.userService.getBalanceOfUser(+id);
+            if (!balance) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Get balance of user successfully', HttpStatus.OK, balance));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     @Get(':id')
     async getUserById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
         try {

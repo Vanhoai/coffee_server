@@ -34,6 +34,22 @@ export class UserService {
         });
     }
 
+    async getBalanceOfUser(id: number): Promise<any> {
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ['balance'],
+        });
+
+        if (!user) {
+            return {
+                message: 'User not found',
+            };
+        }
+
+        const { balance } = user;
+        return balance;
+    }
+
     async getUserById(id: number): Promise<UserEntity> {
         const response = await this.userRepository
             .createQueryBuilder('user')

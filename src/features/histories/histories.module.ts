@@ -5,7 +5,10 @@ import { GiftEntity } from '../gifts/entities/gift.entity';
 import { GiftService } from '../gifts/services/gift.service';
 import { ImageEntity } from '../images/image.entity';
 import { ImageService } from '../images/image.service';
+import { MissionUserEntity } from '../missions/entities/mission-user.entity';
+import { MissionEntity } from '../missions/entities/mission.entity';
 import { TypeEntity } from '../missions/entities/type.entity';
+import { MissionService } from '../missions/services/mission.service';
 import { TypeService } from '../missions/services/type.service';
 import { OrderToProductEntity } from '../orders/entities/order-product.entity';
 import { OrderEntity } from '../orders/entities/order.entity';
@@ -37,6 +40,8 @@ import { HistoryService } from './services/history.service';
             TypeEntity,
             ShopEntity,
             ShopProductEntity,
+            MissionEntity,
+            MissionUserEntity,
         ]),
     ],
     controllers: [HistoryController],
@@ -50,6 +55,7 @@ import { HistoryService } from './services/history.service';
         GiftService,
         TypeService,
         ShopService,
+        MissionService,
     ],
     exports: [HistoryService],
 })

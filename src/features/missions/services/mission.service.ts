@@ -26,11 +26,12 @@ export class MissionService {
     ) {}
 
     async getAllMission({ limit, skip, field }): Promise<any> {
-        const response = await this.missionRepository
+        const response: [MissionEntity[], number] = await this.missionRepository
             .createQueryBuilder('mission')
             .leftJoinAndSelect('mission.type', 'type')
             .leftJoinAndSelect('mission.missionUsers', 'missionUsers')
             .leftJoinAndSelect('missionUsers.user', 'user')
+            .where('mission.deletedAt = :deletedAt', { deletedAt: false })
             .skip(skip || 0)
             .limit(limit || 10)
             .orderBy(`mission.${field || 'id'}`, 'ASC')
@@ -44,10 +45,37 @@ export class MissionService {
         };
     }
 
+    async getMissionOfUser({ userId, limit, skip, field }): Promise<any> {
+        const response: [MissionEntity[], number] = await this.missionRepository
+            .createQueryBuilder('mission')
+            .leftJoinAndSelect('mission.type', 'type')
+            .leftJoinAndSelect('mission.missionUsers', 'missionUsers')
+            .leftJoinAndSelect('missionUsers.user', 'user')
+            .where('mission.deletedAt = :deletedAt', { deletedAt: false })
+            .andWhere('user.id = :userId', { userId })
+            .skip(skip || 0)
+            .limit(limit || 10)
+            .orderBy(`mission.${field || 'id'}`, 'ASC')
+            .getManyAndCount();
+        return {
+            total: response[1],
+            missions: response[0].map((mission) => {
+                return mission;
+            }),
+        };
+    }
+
     async getMissionById(id: number): Promise<MissionEntity> {
         return await this.missionRepository.findOne({
             where: { id },
             relations: ['type', 'missionUsers'],
+        });
+    }
+
+    async getMissionUser(id: number): Promise<MissionUserEntity> {
+        return await this.missionUserRepository.findOne({
+            where: { id },
+            relations: ['user', 'mission'],
         });
     }
 
@@ -219,6 +247,39 @@ export class MissionService {
         };
     }
 
+    async updateMission(id: number, current: number): Promise<any> {
+        const userEntity: UserEntity = await this.userService.getUserById(id);
+
+        if (!userEntity) {
+            return {
+                message: 'User not found',
+                error: true,
+            };
+        }
+
+        const missionUser = userEntity.missionUsers[0];
+
+        const missionUserEntity = await this.getMissionUser(missionUser.id);
+
+        if (!missionUserEntity) {
+            return {
+                message: 'Mission user not found',
+                error: true,
+            };
+        }
+
+        missionUserEntity.current += current;
+        const response = await this.missionUserRepository.save(missionUserEntity);
+
+        await this.updateMissionUser({
+            userId: userEntity.id,
+            missionId: missionUserEntity.mission.id,
+            current,
+        });
+
+        return response;
+    }
+
     async deleteMission(id: number): Promise<any> {
         const mission = await this.getMissionById(id);
         if (!mission) {
@@ -243,15 +304,15 @@ export class MissionService {
 
         const [user, missions, count] = response;
 
-        if (!user || !missions || !count) {
-            return {
-                totalGift: 0,
-                totalMission: 0,
-                totalMissionProgress: 0,
-                listGifts: [],
-                listMissions: [],
-            };
-        }
+        // if (!user || !missions || !count) {
+        //     return {
+        //         totalGift: 0,
+        //         totalMission: 0,
+        //         totalMissionProgress: 0,
+        //         listGifts: [],
+        //         listMissions: [],
+        //     };
+        // }
 
         const totalGiftOfUser = user.gifts.length;
         const listGiftOfUser = user.gifts.map((gift) => {

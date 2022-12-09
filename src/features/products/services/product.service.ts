@@ -140,4 +140,14 @@ export class ProductService {
 
         return await this.productRepository.save(product);
     }
+
+    async searchProductByName(name: string): Promise<any> {
+        const products: ProductEntity[] = await this.productRepository
+            .createQueryBuilder('product')
+            .where('product.name LIKE :name', { name: `%${name}%` })
+            .andWhere('product.deletedAt = :deletedAt', { deletedAt: false })
+            .getMany();
+
+        return products;
+    }
 }

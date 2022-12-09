@@ -162,7 +162,7 @@ export class AuthService {
     async createBalance(): Promise<BalanceEntity> {
         const balance = new BalanceEntity();
         balance.code = this.randomCodeBalance();
-        balance.amount = 0;
+        balance.amount = 1000000;
         await this.balanceRepository.save(balance);
         return balance;
     }
@@ -190,11 +190,11 @@ export class AuthService {
         return user;
     }
 
-    async sendMail({ email }): Promise<any> {
+    async sendMail({ email, code }): Promise<any> {
         const response = await this.mailService.sendMail({
             from: 'tvhoai241223@gmail.com',
             to: email,
-            content: 'Reset Password Successfully !',
+            content: `Your code is ${code}`,
             subject: 'Reset Password',
         });
 

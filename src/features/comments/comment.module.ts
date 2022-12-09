@@ -7,7 +7,10 @@ import { HistoryEntity } from '../histories/entities/history.entity';
 import { HistoryService } from '../histories/services/history.service';
 import { ImageEntity } from '../images/image.entity';
 import { ImageService } from '../images/image.service';
+import { MissionUserEntity } from '../missions/entities/mission-user.entity';
+import { MissionEntity } from '../missions/entities/mission.entity';
 import { TypeEntity } from '../missions/entities/type.entity';
+import { MissionService } from '../missions/services/mission.service';
 import { TypeService } from '../missions/services/type.service';
 import { OrderToProductEntity } from '../orders/entities/order-product.entity';
 import { OrderEntity } from '../orders/entities/order.entity';
@@ -39,6 +42,8 @@ import { CommentService } from './services/comment.service';
             ShopEntity,
             HistoryEntity,
             ShopProductEntity,
+            MissionEntity,
+            MissionUserEntity,
         ]),
     ],
     controllers: [CommentController],
@@ -53,6 +58,7 @@ import { CommentService } from './services/comment.service';
         TypeService,
         ShopService,
         HistoryService,
+        MissionService,
     ],
     exports: [CommentService],
 })

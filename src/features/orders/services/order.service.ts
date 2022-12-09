@@ -1,8 +1,9 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { ConsoleLogger, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getConfig } from 'src/config';
 import { GiftService } from 'src/features/gifts/services/gift.service';
 import { HistoryService } from 'src/features/histories/services/history.service';
+import { MissionService } from 'src/features/missions/services/mission.service';
 import { ProductEntity } from 'src/features/products/entities/product.entity';
 import { ProductService } from 'src/features/products/services/product.service';
 import { ShopProductEntity } from 'src/features/shops/entities/shop-product.entity';
@@ -39,6 +40,7 @@ export class OrderService {
         private readonly productService: ProductService,
         private readonly giftService: GiftService,
         private readonly shopService: ShopService,
+        private readonly missionService: MissionService,
     ) {}
 
     async newOrder({ user, address, shop }: NewOrderDto): Promise<any> {
@@ -83,10 +85,12 @@ export class OrderService {
     }
 
     async getOrderById(id: number): Promise<any> {
-        return await this.orderRepository.findOne({
+        const response: OrderEntity = await this.orderRepository.findOne({
             where: { id, deletedAt: false },
             relations: ['user', 'products', 'products.product', 'products.product.image'],
         });
+
+        return response;
     }
 
     async detailOrder(id: number): Promise<any> {
@@ -263,7 +267,7 @@ export class OrderService {
 
         // if order delivered
         // status == 3
-        if (status === getConfig().ORDER_STATUS.DELIVERED) {
+        if (status >= 3) {
             // delete order from user
             const userEntity = await this.userRepository.findOne({
                 where: { id: order.user.id },
@@ -288,9 +292,16 @@ export class OrderService {
             order.updatedAt = new Date();
             await this.orderRepository.save(order);
 
+            const totalQuantity = order.products.reduce((acc: number, item: any) => {
+                return acc + item.count;
+            }, 0);
+
+            await this.missionService.updateMission(order.user.id, totalQuantity);
+
             userEntity.orders = userEntity.orders.filter((item) => {
                 return item.id !== order.id;
             });
+
             await this.userRepository.save(userEntity);
 
             const {
@@ -308,8 +319,7 @@ export class OrderService {
             const { image, products, ...restShop } = shopEntity;
 
             const response: OrderEntity = await this.getOrderById(order.id);
-            const { shop, ...rest } = response;
-
+            const { ...rest } = response;
             return {
                 ...rest,
                 shop: restShop,
