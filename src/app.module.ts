@@ -20,85 +20,61 @@ import { FirebaseAdminModule } from '@aginix/nestjs-firebase-admin';
 import admin, { ServiceAccount } from 'firebase-admin';
 import credentials from '../google-services.json';
 
-const imports = getConfig().LOCAL
-    ? [
-          ConfigModule.forRoot({ isGlobal: true }),
-          TypeOrmModule.forRoot({
-              type: 'postgres',
-              host: getConfig().POSTGRES_HOST,
-              port: getConfig().POSTGRES_PORT,
-              username: getConfig().POSTGRES_USER,
-              password: getConfig().POSTGRES_PASSWORD,
-              database: getConfig().POSTGRES_DB,
-              autoLoadEntities: true,
-              synchronize: true,
-              entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          }),
-          UserModule,
-          ShopModule,
-          ProductModule,
-          GiftModule,
-          MissionModule,
-          ImageModule,
-          HistoryModule,
-          CloudinaryModule,
-          CommentModule,
-          OrderModule,
-          PublicRoutes,
-          MailerModule.forRootAsync({
-              useFactory: () => ({
-                  transport: {
-                      host: getConfig().HOST_EMAIL,
-                      port: 587,
-                      secure: false,
-                      pool: true,
-                      auth: {
-                          user: getConfig().USER_EMAIL,
-                          pass: getConfig().PASSWORD_EMAIL,
-                      },
-                  },
-                  defaults: {
-                      from: '"nest-modules" <modules@nestjs.com>',
-                  },
-                  template: {
-                      dir: process.cwd() + '/templates/',
-                      adapter: new HandlebarsAdapter(),
-                      options: {
-                          strict: true,
-                      },
-                  },
-              }),
-          }),
-          FirebaseAdminModule.forRootAsync({
-              useFactory: () => ({
-                  credential: admin.credential.cert(credentials as ServiceAccount),
-              }),
-          }),
-      ]
-    : [
-          ConfigModule.forRoot({ isGlobal: true }),
-          TypeOrmModule.forRoot({
-              type: 'postgres',
-              url: getConfig().POSTGRES_URI,
-              autoLoadEntities: true,
-              synchronize: true,
-              entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          }),
-          UserModule,
-          ShopModule,
-          ProductModule,
-          GiftModule,
-          MissionModule,
-          ImageModule,
-          HistoryModule,
-          CloudinaryModule,
-          CommentModule,
-          OrderModule,
-          PublicRoutes,
-      ];
-
 @Module({
-    imports: imports,
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        TypeOrmModule.forRoot({
+            type: 'postgres',
+            host: getConfig().POSTGRES_HOST,
+            port: getConfig().POSTGRES_PORT,
+            username: getConfig().POSTGRES_USER,
+            password: getConfig().POSTGRES_PASSWORD,
+            database: getConfig().POSTGRES_DB,
+            autoLoadEntities: true,
+            synchronize: true,
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        }),
+        UserModule,
+        ShopModule,
+        ProductModule,
+        GiftModule,
+        MissionModule,
+        ImageModule,
+        HistoryModule,
+        CloudinaryModule,
+        CommentModule,
+        OrderModule,
+        PublicRoutes,
+        MailerModule.forRootAsync({
+            useFactory: () => ({
+                transport: {
+                    host: getConfig().HOST_EMAIL,
+                    port: 587,
+                    secure: false,
+                    pool: true,
+                    auth: {
+                        user: getConfig().USER_EMAIL,
+                        pass: getConfig().PASSWORD_EMAIL,
+                    },
+                },
+                defaults: {
+                    from: '"nest-modules" <modules@nestjs.com>',
+                },
+                template: {
+                    dir: process.cwd() + '/templates/',
+                    adapter: new HandlebarsAdapter(),
+                    options: {
+                        strict: true,
+                    },
+                },
+            }),
+        }),
+        FirebaseAdminModule.forRootAsync({
+            useFactory: () => ({
+                credential: admin.credential.cert(credentials as ServiceAccount),
+            }),
+        }),
+    ],
     controllers: [],
     providers: [],
     exports: [],

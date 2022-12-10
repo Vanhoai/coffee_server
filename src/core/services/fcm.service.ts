@@ -5,7 +5,5 @@ import { FirebaseMessagingService } from '@aginix/nestjs-firebase-admin';
 export class FCMService {
     constructor(private readonly firebaseMessagingService: FirebaseMessagingService) {}
 
-    async sendNotificationToOneUser({ id, title, body }): Promise<any> {
-        // const response = await this.firebaseMessagingService.send();
-    }
+    async sendNotificationToOneUser(token: string, title: string, body: string) {}
 }
