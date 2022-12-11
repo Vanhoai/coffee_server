@@ -1,6 +1,7 @@
 import { ConsoleLogger, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getConfig } from 'src/config';
+import { FCMService } from 'src/core/services/fcm.service';
 import { GiftService } from 'src/features/gifts/services/gift.service';
 import { HistoryService } from 'src/features/histories/services/history.service';
 import { MissionService } from 'src/features/missions/services/mission.service';
@@ -41,6 +42,7 @@ export class OrderService {
         private readonly giftService: GiftService,
         private readonly shopService: ShopService,
         private readonly missionService: MissionService,
+        private readonly fcmService: FCMService,
     ) {}
 
     async newOrder({ user, address, shop }: NewOrderDto): Promise<any> {
@@ -265,6 +267,10 @@ export class OrderService {
             order.total += balance;
         }
 
+        order.status = status;
+        order.updatedAt = new Date();
+        await this.orderRepository.save(order);
+
         // if order delivered
         // status == 3
         if (status >= 3) {
@@ -315,6 +321,12 @@ export class OrderService {
             balanceEntity.amount -= order.total;
             await this.balanceRepository.save(balanceEntity);
 
+            await this.fcmService.sendNotificationToOneUser(
+                userEntity.deviceToken,
+                'Order delivered',
+                'Your order has been delivered successfully',
+            );
+
             const shopEntity: ShopEntity = await this.shopService.getShopById(order.shop.id);
             const { image, products, ...restShop } = shopEntity;
 
@@ -336,9 +348,6 @@ export class OrderService {
                 }),
             };
         }
-
-        order.status = status;
-        order.updatedAt = new Date();
 
         const shopEntity: ShopEntity = await this.shopService.getShopById(order.shop.id);
         const { image, products: productShop, ...restShop } = shopEntity;
@@ -560,23 +569,8 @@ export class OrderService {
             user: { id: userId },
         } = orderEntity;
 
-        const userEntity: UserEntity = await this.userService.getUserById(userId);
-
-        if (!userEntity) {
-            return {
-                message: 'User not found',
-                error: true,
-            };
-        }
-
-        // remove order from user
-        userEntity.orders = userEntity.orders.filter((item) => {
-            return item.id !== orderEntity.id;
-        });
-
-        await this.userRepository.save(userEntity);
-
         orderEntity.deletedAt = true;
+        orderEntity.status = getConfig().ORDER_STATUS.CANCELED;
         orderEntity.updatedAt = new Date();
 
         await this.orderRepository.save(orderEntity);

@@ -2,11 +2,12 @@ import { Body, Controller, Delete, Get, HttpStatus, Next, Patch, Post, Put, Req,
 import { NextFunction, Request, Response } from 'express';
 import { HttpResponse } from 'src/utils/HttpResponse';
 import { CreateOrderParams } from '../interfaces/CreateOrderParams';
+import { FCMOrderService } from '../services/fcm-order.service';
 import { OrderService } from '../services/order.service';
 
 @Controller('order')
 export class OrderController {
-    constructor(private readonly orderService: OrderService) {}
+    constructor(private readonly orderService: OrderService, private readonly fcmOrderService: FCMOrderService) {}
 
     @Get('detail/:id')
     async getOrderDetail(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
@@ -180,6 +181,17 @@ export class OrderController {
             const { user, address, shop } = req.body;
             const response = await this.orderService.newOrder({ user, address, shop });
             return res.status(HttpStatus.OK).json(HttpResponse.result('Create order', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Post('push-notification')
+    async pushNotification(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { token, title, body } = req.body;
+            const response = await this.fcmOrderService.pushNotification({ token, title, body });
+            return res.status(HttpStatus.OK).json(HttpResponse.result('Push notification', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

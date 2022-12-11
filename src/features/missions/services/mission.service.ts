@@ -1,5 +1,6 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FCMService } from 'src/core/services/fcm.service';
 import { GiftService } from 'src/features/gifts/services/gift.service';
 import { UserEntity } from 'src/features/users/entities/user.entity';
 import { UserService } from 'src/features/users/services/users.service';
@@ -23,6 +24,7 @@ export class MissionService {
         private readonly typeService: TypeService,
         private readonly userService: UserService,
         private readonly giftService: GiftService,
+        private readonly fcmService: FCMService,
     ) {}
 
     async getAllMission({ limit, skip, field }): Promise<any> {
@@ -32,6 +34,27 @@ export class MissionService {
             .leftJoinAndSelect('mission.missionUsers', 'missionUsers')
             .leftJoinAndSelect('missionUsers.user', 'user')
             .where('mission.deletedAt = :deletedAt', { deletedAt: false })
+            .skip(skip || 0)
+            .limit(limit || 10)
+            .orderBy(`mission.${field || 'id'}`, 'ASC')
+            .getManyAndCount();
+
+        return {
+            total: response[1],
+            missions: response[0].map((mission) => {
+                return mission;
+            }),
+        };
+    }
+
+    async getAllMissionOfUser({ user, limit, skip, field }): Promise<any> {
+        const response: [MissionEntity[], number] = await this.missionRepository
+            .createQueryBuilder('mission')
+            .leftJoinAndSelect('mission.type', 'type')
+            .leftJoinAndSelect('mission.missionUsers', 'missionUsers')
+            .leftJoinAndSelect('missionUsers.user', 'user')
+            .where('mission.deletedAt = :deletedAt', { deletedAt: false })
+            .andWhere('user.id = :userId', { userId: user })
             .skip(skip || 0)
             .limit(limit || 10)
             .orderBy(`mission.${field || 'id'}`, 'ASC')
@@ -105,6 +128,8 @@ export class MissionService {
         typeEntity.missions.push(mission);
 
         await this.typeRepository.save(typeEntity);
+
+        await this.fcmService.sendNotificationToAllUser('New mission', 'New mission is available. Check it now!');
 
         const result = await this.missionRepository.save(mission);
         const { type: typeResponse, ...rest } = result;
@@ -218,7 +243,7 @@ export class MissionService {
 
             // delete mission user
             missionUserEntity.deletedAt = true;
-            await this.missionUserRepository.save(missionUserEntity);
+            const response = await this.missionUserRepository.save(missionUserEntity);
 
             // remove mission user in mission
             userEntity.missionUsers = userEntity.missionUsers.filter((missionUser) => {
@@ -235,16 +260,14 @@ export class MissionService {
 
             // save user
             await this.userService.updateUser(userEntity.id, userEntity);
-        } else {
-            // if current is less than total => update current
-            missionUserEntity.current += current;
-            await this.missionUserRepository.save(missionUserEntity);
+
+            return response;
         }
 
-        return {
-            message: 'Update mission user success',
-            error: false,
-        };
+        // if current is less than total => update current
+        missionUserEntity.current += current;
+        const response: MissionUserEntity = await this.missionUserRepository.save(missionUserEntity);
+        return response;
     }
 
     async updateMission(id: number, current: number): Promise<any> {
@@ -269,10 +292,7 @@ export class MissionService {
             return;
         }
 
-        missionUserEntity.current += current;
-        const response = await this.missionUserRepository.save(missionUserEntity);
-
-        await this.updateMissionUser({
+        const response = await this.updateMissionUser({
             userId: userEntity.id,
             missionId: missionUserEntity.mission.id,
             current,
@@ -296,7 +316,7 @@ export class MissionService {
     async getInformationMissionUser(userId: number, { limit, skip, field }): Promise<any> {
         const response = await Promise.all([
             this.userService.getUserById(userId),
-            this.getAllMission({ limit, skip, field }),
+            this.getAllMissionOfUser({ user: userId, limit, skip, field }),
             this.missionUserRepository
                 .createQueryBuilder('mission_user')
                 .andWhere('mission_user.user = :userId', { userId })
@@ -304,16 +324,6 @@ export class MissionService {
         ]);
 
         const [user, missions, count] = response;
-
-        // if (!user || !missions || !count) {
-        //     return {
-        //         totalGift: 0,
-        //         totalMission: 0,
-        //         totalMissionProgress: 0,
-        //         listGifts: [],
-        //         listMissions: [],
-        //     };
-        // }
 
         const totalGiftOfUser = user.gifts.length;
         const listGiftOfUser = user.gifts.map((gift) => {

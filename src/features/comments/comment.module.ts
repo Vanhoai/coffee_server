@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FCMService } from 'src/core/services/fcm.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { GiftEntity } from '../gifts/entities/gift.entity';
 import { GiftService } from '../gifts/services/gift.service';
@@ -59,6 +60,7 @@ import { CommentService } from './services/comment.service';
         ShopService,
         HistoryService,
         MissionService,
+        FCMService,
     ],
     exports: [CommentService],
 })

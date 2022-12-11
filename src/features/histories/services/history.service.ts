@@ -108,7 +108,6 @@ export class HistoryService {
             .leftJoinAndSelect('productOrder.product', 'product')
             .leftJoinAndSelect('product.image', 'image')
             .where('user.id = :userId', { userId: id })
-            .andWhere('order.deletedAt = :deletedAt', { deletedAt: false })
             .getMany();
 
         const response = historiesEntity.map(async (history) => {

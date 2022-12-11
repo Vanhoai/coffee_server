@@ -27,6 +27,7 @@ export const getConfig = () => {
             PAID: 1,
             DELIVERING: 2,
             DELIVERED: 3,
+            CANCELED: 4,
         },
         ROLE: {
             ADMIN: 'ADMIN',

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FCMService } from 'src/core/services/fcm.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { GiftEntity } from '../gifts/entities/gift.entity';
 import { GiftService } from '../gifts/services/gift.service';
@@ -23,6 +24,7 @@ import { UserService } from '../users/services/users.service';
 import { OrderController } from './controllers/order.controller';
 import { OrderToProductEntity } from './entities/order-product.entity';
 import { OrderEntity } from './entities/order.entity';
+import { FCMOrderService } from './services/fcm-order.service';
 import { OrderService } from './services/order.service';
 
 @Module({
@@ -55,6 +57,8 @@ import { OrderService } from './services/order.service';
         TypeService,
         HistoryService,
         MissionService,
+        FCMService,
+        FCMOrderService,
     ],
     exports: [],
 })

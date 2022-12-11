@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FCMService } from 'src/core/services/fcm.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { GiftEntity } from '../gifts/entities/gift.entity';
 import { GiftService } from '../gifts/services/gift.service';
@@ -34,7 +35,16 @@ import { TypeService } from './services/type.service';
         ]),
     ],
     controllers: [MissionController, TypeController],
-    providers: [MissionService, TypeService, UserService, ImageService, ProductService, CloudinaryService, GiftService],
+    providers: [
+        MissionService,
+        TypeService,
+        UserService,
+        ImageService,
+        ProductService,
+        CloudinaryService,
+        GiftService,
+        FCMService,
+    ],
     exports: [],
 })
 export class MissionModule {}
