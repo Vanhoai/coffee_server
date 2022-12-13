@@ -63,7 +63,7 @@ export class FCMService {
             topic: 'all',
         };
 
-        const response = await this.firebaseMessagingService.send(message);
+        const response: string = await this.firebaseMessagingService.send(message);
 
         return response;
     }
@@ -95,7 +95,7 @@ export class FCMService {
             topic: 'all',
         };
 
-        const response = await this.firebaseMessagingService.send(message);
+        const response: string = await this.firebaseMessagingService.send(message);
 
         return response;
     }
