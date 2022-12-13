@@ -32,12 +32,43 @@ export class FCMService {
             token,
         };
 
+        const response: string = await this.firebaseMessagingService.send(message);
+        return response;
+    }
+
+    async sendNotificationToAllUser(title: string, body: string): Promise<any> {
+        const message = {
+            android: {
+                notification: {
+                    body,
+                    title,
+                },
+            },
+            apns: {
+                headers: {
+                    'apns-priority': '10',
+                    'apns-expiration': '360000',
+                },
+                payload: {
+                    aps: {
+                        alert: {
+                            title,
+                            body,
+                        },
+                        sound: 'default',
+                    },
+                    data: {},
+                },
+            },
+            topic: 'all',
+        };
+
         const response = await this.firebaseMessagingService.send(message);
 
         return response;
     }
 
-    async sendNotificationToAllUser(title: string, body: string): Promise<any> {
+    async sendToAllDevices(title: string, body: string): Promise<any> {
         const message = {
             android: {
                 notification: {
