@@ -15,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { NextFunction, Request, Response } from 'express';
 import { IBaseParams } from 'src/core/interfaces/IBaseParams';
 import { HttpResponse } from 'src/utils/HttpResponse';
+import { UserEntity } from '../../entities/user.entity';
 import { UserService } from '../../services/users.service';
 
 @Controller('users')
@@ -234,6 +235,36 @@ export class UserController {
             return res
                 .status(HttpStatus.OK)
                 .json(HttpResponse.result('Update device token successfully', HttpStatus.OK, response));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    @Post('information/:id')
+    async updateUserInformation(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { id } = req.params;
+            const { username, email, password } = req.body;
+            if (!username || !email || !password) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Bad request', HttpStatus.BAD_REQUEST, {}));
+            }
+            const response: UserEntity = await this.userService.updateUserInformation({
+                id: +id,
+                username,
+                email,
+                password,
+            });
+            if (!response) {
+                return res
+                    .status(HttpStatus.NOT_FOUND)
+                    .json(HttpResponse.result('Not found', HttpStatus.NOT_FOUND, {}));
+            }
+
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Update user information successfully', HttpStatus.OK, response));
         } catch (error: any) {
             next(error);
         }

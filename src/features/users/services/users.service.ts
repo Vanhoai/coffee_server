@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConfig } from 'src/config';
-import { IBaseParams } from 'src/core/interfaces/IBaseParams';
-import { HistoryService } from 'src/features/histories/services/history.service';
 import { ImageService } from 'src/features/images/image.service';
 import { ProductService } from 'src/features/products/services/product.service';
 import { Repository } from 'typeorm';
 import { UpdateImageDto } from '../dtos/UpdateImage.dto';
 import { BalanceEntity } from '../entities/balance.entity';
 import { UserEntity } from '../entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -265,11 +263,33 @@ export class UserService {
         return await this.userRepository.save(user);
     }
 
-    async getUserByOption(key: string, value: string): Promise<UserEntity> {
+    async updateUserInformation({
+        id,
+        username,
+        email,
+        password,
+    }: {
+        id: number;
+        email: string;
+        username: string;
+        password: string;
+    }): Promise<UserEntity> {
         const user: UserEntity = await this.userRepository.findOne({
-            where: { [key]: value },
+            where: { id },
         });
 
-        return user;
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const salt: string = await bcrypt.genSalt(Number(10));
+        const hashedPassword: string = await bcrypt.hash(password, salt);
+
+        user.username = username;
+        user.email = email;
+        user.password = hashedPassword;
+        user.updatedAt = new Date();
+
+        return await this.userRepository.save(user);
     }
 }
