@@ -121,4 +121,15 @@ export class GiftService {
 
         return response;
     }
+
+    async removeGiftOfUser(id: number, giftId: number): Promise<any> {
+        const userEntity = await this.userService.getUserById(id);
+        const giftEntity = await this.findGiftById(giftId);
+
+        userEntity.gifts = userEntity.gifts.filter((gift) => gift.id !== giftId);
+
+        await this.userService.updateUser(id, userEntity);
+
+        return giftEntity;
+    }
 }

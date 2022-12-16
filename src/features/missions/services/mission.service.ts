@@ -261,6 +261,12 @@ export class MissionService {
             // save user
             await this.userService.updateUser(userEntity.id, userEntity);
 
+            await this.fcmService.sendNotificationToOneUser(
+                userEntity.deviceToken,
+                'Thông báo nhận quà',
+                'Bạn vừa hoàn thành nhiệm vụ đã đăng kí và nhận được phần thưởng',
+            );
+
             return response;
         }
 

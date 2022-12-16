@@ -106,4 +106,27 @@ export class GiftController {
             next(error);
         }
     }
+
+    @Post('user/remove')
+    async removeGiftOfUser(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
+        try {
+            const { userId, giftId } = req.body;
+            if (!userId || !giftId) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Remove gift of user failed', HttpStatus.BAD_REQUEST, {}));
+            }
+            const gift = await this.giftService.removeGiftOfUser(+userId, +giftId);
+            if (!gift) {
+                return res
+                    .status(HttpStatus.BAD_REQUEST)
+                    .json(HttpResponse.result('Remove gift of user failed', HttpStatus.BAD_REQUEST));
+            }
+            return res
+                .status(HttpStatus.OK)
+                .json(HttpResponse.result('Remove gift of user successfully', HttpStatus.OK, gift));
+        } catch (error) {
+            next(error);
+        }
+    }
 }

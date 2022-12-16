@@ -575,6 +575,13 @@ export class OrderService {
 
         await this.orderRepository.save(orderEntity);
         const response = await this.historyService.getAllHistoryByUserId(userId);
+
+        await this.fcmService.sendNotificationToOneUser(
+            orderEntity.user.deviceToken,
+            'Hủy đơn hàng',
+            'Bạn đã hủy đơn hàng thành công',
+        );
+
         return response;
     }
 }
